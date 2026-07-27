@@ -295,3 +295,17 @@ E4b is firing for real reasons, not phantom hits.
 Caveat: absent alone is weak — a fake entity is also absent. That is why E4b
 is supporting only and still needs E1 or E2 to qualify.
 
+## 2026-07-27 17:55 PKT — Renamed sources, adding two more classes
+
+Renamed `propublica.py` → `source_990pf.py` so files match what they actually
+are. Added stub files for the other discovery classes: `source_press.py`,
+`source_jobs.py`, `source_edgar.py`, plus `base.py` for shared stuff.
+
+So far the 990-PF route alone got me **31 family offices** through the pipeline.
+That is a start but the assessment wants multiple discovery sources — one source
+copied at scale is not acceptable. I planned three classes from the start (990-PF,
+job postings, press/news). Need to actually build and run the other two, not
+just the foundation route.
+
+990-PF stays source 1. Press and jobs are next. EDGAR is extra if I have time.
+
