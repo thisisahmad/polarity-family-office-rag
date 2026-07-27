@@ -27,3 +27,69 @@ Decision: US nationwide discovery, no national completeness claim.
 Why: Because PolarityIQ sells to US buyers. But 50 records out of thousands of US
 family offices is not "coverage", so claiming it would be a false claim.
 Risk: nationwide spread means fewer records per state, weaker recall argument.
+
+## 2026-07-27 10:30 PKT — Stack
+
+Going with Supabase (Postgres + pgvector), i will see where should i deploy fast api, React on Vercel.
+
+I picked this because I have built on this stack before. In 48 hours I cannot
+afford to learn a new deployment setup. Also pgvector lets me do filters and
+vector search in one query. If I used Pinecone I would need two systems and
+merge the results myself.
+
+Downside: pgvector is slower at big scale. But I only have 50 records so it
+does not matter here.
+
+## 2026-07-27 10:50 PKT — Supabase settings
+
+Turned OFF the Data API . Set region to US East.
+
+The Data API makes a public REST endpoint for every table. My tables will have
+real people's emails and phone numbers in them. I do not want that sitting on a
+public URL. My backend talks to Postgres directly so I do not need it.
+
+US East because my backend will be there too. If the DB was in Asia every query
+would be slow for them when they test it.
+
+This makes my own testing slower from Pakistan. Fine, their demo speed matters
+more than mine.
+
+## 2026-07-26 23:05 PKT — Schema
+
+Made two tables instead of one. `candidates` is raw stuff I found.
+`firms` is only the ones that passed classification.
+
+Reason: the task doc has two different rules. A cell can be uncertain. The firm
+cannot. So I split them. Also `inclusion_status` defaults to
+'rejected_type_unproven'. Nothing gets into my 50 unless I actively promote it
+with evidence. That way I cannot accidentally include a firm I never proved.
+
+Made provenance a separate table, not just a source_url column. I need to store
+where each field came from and how I checked it. One column cannot do that.
+
+Added an `audit_rejects` table too. The doc says rejected values can be kept
+somewhere separate but must not stay in the fields a customer sees.
+
+
+## 2026-07-26 23:40 PKT — First discovery source
+
+Built the ProPublica 990-PF script. It searches foundation names and pulls out
+the family surname. "SMITH FAMILY FOUNDATION" gives me "Smith".
+
+Before writing the code I checked what the API actually does. The `q` parameter
+searches the organization name and city, not the text inside filings. That works
+for me because surnames are in the names. Search results only give city and
+state, so I need a second call per org to get the street address.
+
+Weak point: my regex only looks at the name. It cannot tell a real family
+foundation from a community or religious one with a similar name. I will have to
+catch those later in classification.
+
+## Still open
+
+- What asset size means a family probably has a family office. Need to look at
+  the numbers first before I pick.
+- Whether to show real emails and phone numbers on the public demo site.
+  Showing them is a privacy problem. Hiding them removes the value the user
+  sees. Thinking about showing "verified" without the actual value.
+- My surname regex probably needs fixing. Will check after I see the output.
