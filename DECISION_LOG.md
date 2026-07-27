@@ -413,7 +413,7 @@ Why: classify sets `legal_name = matched_entity` and `website = matched_url`.
 Those were for classification, not customer-facing output. I reused them without
 checking what they actually contained.
 
-Bad for email — needs a real domain. Worse for names — 64 page titles shipped
+Bad for email needs a real domain. Worse for names 64 page titles shipped
 as firm names. Doc says every customer string is a claim they check.
 
 Fix: `resolve_firms.py` — clean the name (rules + LLM), find real domain,
@@ -425,4 +425,15 @@ honest — report the real number.
 
 Same pattern again: no crash, clean run, wrong data. Caught it by looking at
 rows not counts.
+
+## 2026-07-28 01:35 PKT — Duplicates the index never caught
+
+CSV review of 58 qualified rows. 3 firms in twice — Dalio, Bezos, Bravo.
+Index on name+state never fired because `legal_name` was still page titles at
+insert. Different strings, same firm.
+
+Kept best row each pair. Removed Hyatt (Canada), Signature (wrong entity in
+headline), Treehouse (Singapore). Pitcairn → multi_family (manual note).
+
+Down to 53. Found by reading rows, not counts.
 
