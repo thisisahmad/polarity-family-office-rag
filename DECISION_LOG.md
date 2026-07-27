@@ -197,3 +197,30 @@ for now — I would rather hand-check weak than let junk into linked.
 
 6 linked + 7 weak out of 20. ~82 linked across 272 if it holds. Enough for 50.
 
+## 2026-07-27 15:30 PKT — Added classify step
+
+Linkage finds a company that might belong to the family. It does not prove
+family office.for this i have  Built `src/classify/classify.py` .
+
+What it does: takes linked candidates, checks SEC Form ADV (to classify, not
+to discover), reads the company page with LLM, then decides single vs multi
+family and whether to promote to `qualified`.
+
+Rule from the task doc: need **two** independent evidence items before a firm
+counts, and at least one must be strong (page says FO, surname tied to the
+family, or foundation address matches ADV/page). Anything less stays
+`rejected_type_unproven` and does not count toward the 50.
+
+## 2026-07-27 15:35 PKT — ADV API, checked before coding classify
+
+Looked at the IAPD endpoint before building `classify.py`. Three fixes:
+
+Search is fuzzy "Hall Capital Partners" also returns "Halliday Capital".
+A hit is not a match. Added name similarity, threshold 0.80.
+
+Registration is not binary records can be ACTIVE or INACTIVE. Hall Capital
+came back INACTIVE. I was scoring that wrong.
+
+Filed address is in the response. I can match
+foundation street to that instead of scraping the company site.
+
