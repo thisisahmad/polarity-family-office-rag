@@ -106,3 +106,20 @@ incrementally in batches. After this script i will do the incremental batches.
 
 Also: 1832 candidates is far more than I need for 50 records. Good — it means I
 can filter hard on asset size and still have enough left.
+
+## 2026-07-27 12:00  PKT — Checked surname output
+
+Inspected the surname list from the harvest. Note: JSON was truncated because
+I killed the script last night, so this is a partial view (874 of 1832).
+
+Quality is better than I expected. Most are real family surnames — Davis,
+Friedman, Kaufman, Kaplan, Roth, Levine, Stern.
+
+Junk I found: "Family" (from "rhe family foundation" — my regex bug),
+"Footprints", "Ted", "Rjs". Added these to STOPWORDS plus a rule to drop
+short all-caps strings that are probably initials.
+
+Interesting: "Bezos" and "Argyros" both appeared. Both are real billionaire
+families with known family offices. This tells me the foundation route actually
+reaches families I would never find on a family office list. I will use Bezos
+as a test case for my linkage code since I already know the answer.
