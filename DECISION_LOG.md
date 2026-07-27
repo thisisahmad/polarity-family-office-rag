@@ -426,7 +426,7 @@ honest — report the real number.
 Same pattern again: no crash, clean run, wrong data. Caught it by looking at
 rows not counts.
 
-## 2026-07-28 01:35 PKT — Duplicates the index never caught
+## 2026-07-28 02:03 PKT — Duplicates the index never caught
 
 CSV review of 58 qualified rows. 3 firms in twice — Dalio, Bezos, Bravo.
 Index on name+state never fired because `legal_name` was still page titles at
@@ -436,4 +436,18 @@ Kept best row each pair. Removed Hyatt (Canada), Signature (wrong entity in
 headline), Treehouse (Singapore). Pitcairn → multi_family (manual note).
 
 Down to 53. Found by reading rows, not counts.
+
+## 2026-07-28 02:14 PKT — E5 matched on single digits
+
+Checked E5 rows with short street numbers. Burch had "1", Zell had "2". Any
+page with "1" in it counted as a match. Coincidence, not evidence.
+
+Zell keeps E1+E2 — dropping false E5 only lowers confidence. Burch had
+fo=False (investment vehicle, not FO) and only stayed in on surname + a "1"
+somewhere. Deleted.
+
+Fixed: street numbers under 3 digits no longer fire E5.
+
+Fourth silent bug — hardcoded source_class, 13F wrong page, page titles as
+names, now this. No crashes. Only found by querying values, not counts.
 
