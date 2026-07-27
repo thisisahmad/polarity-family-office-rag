@@ -349,3 +349,18 @@ skip existing firms — truncate firms + provenance if I want a full re-score.
 Target: no source more than ~half my records. If 990-PF stays 31 of 45 it
 still reads as one source with extras.
 
+## 2026-07-27 20:30 PKT — E6 was too loose
+
+Press added 14 but 4 shouldn't have qualified Berritto, Mitchell, Alpha
+Capital, Angeles. LLM said it couldn't confirm FO status but E6 alone passed them.
+
+Bug: I counted "snippet contains family office" as attestation. Wrong. The doc
+says name usage is not evidence — the article has to actually describe the
+entity as a family office.
+
+Fixed: E6 only counts as identity when the LLM confirms. Otherwise E6w,
+supporting only. Dropped those 4. Down to 41.
+
+Press yield lower than expected state queries especially returned nothing.
+Need jobs and EDGAR for a balanced split, not 990-PF plus a handful.
+
