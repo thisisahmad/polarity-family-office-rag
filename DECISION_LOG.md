@@ -261,3 +261,23 @@ Rate 50% → 40%. ~72 projected. Still above 50.
 GPT-5.1 helped — rejected Harris Holdings (garden products), Royce (LEI page),
 Patterson (construction). Catching stuff my rules miss.
 
+## 2026-07-27 17:00 PKT — Gate fix confirmed, snippet problem
+
+Zorich now correctly rejected. Every qualified record has E1 or E2. Gate fix
+worked.
+
+40% rate, ~72 projected on 180 — but this batch was my highest-scoring
+candidates so real number is probably 50-60. A bit tight.
+
+Heinz and Beemok both had title-only text (19 and 60 chars). Model correctly
+refused — but both are real SFOs. Losing good records to missing input, not
+bad logic.
+
+Fix: re-run linkage with search snippets captured (~750 API calls, ~20 min).
+SWFI snippets often have the firm description — that's the identity evidence
+classify needs. Running enrichment in parallel so time isn't wasted.
+
+Model still doing real work — rejected Harris (garden products), Royce (LEI
+page), Patterson and Zorich (construction). Four FPs my keyword rules would
+have passed.
+
