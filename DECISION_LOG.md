@@ -366,16 +366,35 @@ Need jobs and EDGAR for a balanced split, not 990-PF plus a handful.
 
 ## 2026-07-27 21:05 PKT — Source class hardcoded (silent bug)
 
-classify.py stamped every firm as `irs_990pf` — even the 14 press records.
+classify.py stamped every firm as `irs_990pf` even the 14 press records.
 No error, no crash. Pipeline looked fine. The per-source breakdown would have
 shown 100% from one source and I would have believed it.
 
 Fixed: read `row.get("source_class")`. Backfilled 45 rows from candidates.
-Also fixed identity count in `inclusion_reason` — trailing spaces so E6w
+Also fixed identity count in `inclusion_reason` trailing spaces so E6w
 doesn't count as identity.
 
-Deleted 4 bad records and re-ran. Had to delete first — `on conflict do nothing`
+Deleted 4 bad records and re-ran. Had to delete first `on conflict do nothing`
 would have just skipped them with the old verdict.
 
 Running jobs and EDGAR next.
+
+## 2026-07-27 23:40 PKT — 13F: 45 candidates, 0 qualified (my bug)
+
+Source split: 990-PF 32, press 10, jobs 5, **13F zero** out of 45.
+
+Traced it. I excluded `sec_13f` from E6 on purpose — hedge funds and RIAs file
+13F too, so the filing can't prove family office. Those records need E1 from
+the firm's own page.
+
+But `matched_url` for 13F pointed at an SEC browse-edgar page. That page will
+never say "family office". Classifier read the wrong doc and correctly found
+nothing. Exclusion was right. Target was wrong.
+
+Wrote `resolve_13f_sites.py` — finds each filer's real website, updates
+`matched_url` there. `source_url` stays on the SEC filing. Discovery = 13F
+obligation, proof = what the firm says about itself.
+
+Same pattern as the source_class bug: no error, no crash, looked like 13F
+produced nothing. Only caught it by checking the per-source split.
 

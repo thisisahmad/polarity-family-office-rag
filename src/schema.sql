@@ -111,4 +111,17 @@ create index on candidates (surname);
 create index on candidates (source_class);
 create index on firms (fo_type);
 create index on firms (inclusion_status);
+
+-- Dedupes re-runs: classify INSERT uses on conflict do nothing against this.
+create unique index firms_uniq
+  on firms (lower(legal_name), coalesce(hq_state, ''));
+
+-- provenance uses polymorphic (entity_type, entity_id) — no FK to firms,
+-- because the same table also holds rows for principals and signals.
+-- Deleting from firms does NOT auto-clean provenance. After manual firm
+-- deletes, run:
+--   delete from provenance p
+--   where p.entity_type = 'firms'
+--     and not exists (select 1 from firms f where f.firm_id = p.entity_id);
+
 create index on provenance (entity_type, entity_id);
