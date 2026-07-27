@@ -281,3 +281,17 @@ Model still doing real work — rejected Harris (garden products), Royce (LEI
 page), Patterson and Zorich (construction). Four FPs my keyword rules would
 have passed.
 
+## 2026-07-27 17:10 PKT — ADV works, null is the finding
+
+Tested `check_adv`: Hall Capital → INACTIVE (1.0 match). BlackRock → ACTIVE
+(1.0 match). Function works. The ten `not_found` on my FOs are real, not a bug.
+
+That is the Dodd-Frank exclusion doing its job — real SFOs serve one family,
+so they are not on the adviser register. Absence is what a genuine SFO looks like.
+
+Seen all three states: ACTIVE (BlackRock), INACTIVE (Hall), ABSENT (my SFOs).
+E4b is firing for real reasons, not phantom hits.
+
+Caveat: absent alone is weak — a fake entity is also absent. That is why E4b
+is supporting only and still needs E1 or E2 to qualify.
+
