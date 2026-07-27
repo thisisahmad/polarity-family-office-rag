@@ -295,17 +295,57 @@ E4b is firing for real reasons, not phantom hits.
 Caveat: absent alone is weak — a fake entity is also absent. That is why E4b
 is supporting only and still needs E1 or E2 to qualify.
 
-## 2026-07-27 17:55 PKT — Renamed sources, adding two more classes
+## 2026-07-27 17:55 PKT — Renamed sources, planning the other three
 
-Renamed `propublica.py` → `source_990pf.py` so files match what they actually
-are. Added stub files for the other discovery classes: `source_press.py`,
-`source_jobs.py`, `source_edgar.py`, plus `base.py` for shared stuff.
+Renamed `propublica.py` → `source_990pf.py`. Added stubs for press, jobs,
+EDGAR, plus `base.py`.
 
-So far the 990-PF route alone got me **31 family offices** through the pipeline.
-That is a start but the assessment wants multiple discovery sources — one source
-copied at scale is not acceptable. I planned three classes from the start (990-PF,
-job postings, press/news). Need to actually build and run the other two, not
-just the foundation route.
+990-PF alone got me **31 family offices**. OK start but it's one source — that
+is not allowed.
 
-990-PF stays source 1. Press and jobs are next. EDGAR is extra if I have time.
+Where records die: 272 candidates → 123 links → 31 qualified. The surname →
+company guess is the bottleneck. 990-PF finds a family, then I guess the company
+from the foundation name. Press and jobs name the company directly — no guess.
+
+Two false negatives showed the ceiling: San Antonio Wealth and KG Investments
+are real SFOs but rejected because surname didn't match (Mays, Dorrance). Real
+offices, wrong families. 990-PF only finds offices tied to a foundation name.
+
+990-PF = source 1. Press and jobs next. EDGAR after.
+
+## 2026-07-27 18:25 PKT — Sources built
+
+`base.py` holds shared stuff — serper, LLM extract, name filters, db writes.
+Each source file just has its queries.
+
+Press: 24 queries. Added Texas, California, Florida — national queries kept
+returning the same big names.
+
+Jobs: 14 queries. Not scraping LinkedIn (against TOS). Search results only.
+Fewer records but fine.
+
+Filters block advisors, consultants, law firms, recruiters, conference companies.
+They serve family offices — they are not family offices.
+
+classify.py got E6 for press/job records. No surname means E2 never fires —
+everything stuck at 1 evidence. E6 = third party named it a family office.
+Counts as identity evidence.
+
+Left `sec_13f` out of E6. Hedge funds file 13F too. A filing only proves the
+entity exists with $100M+ in listed stocks. Those records still need E1.
+
+EDGAR is not optional anymore. 13F is a legal filing — finds offices with no
+foundation, no press, no jobs. Different blind spot from everything else.
+
+Note: 13F value is NOT AUM. Only US listed stocks. Misses private cos, real
+estate, bonds, foreign stuff — most of a family office's money. Storing as
+`equity_13f_value_usd`.
+
+Broke two things fixing this. `linkage_queue` needed `source_class` — already
+there. `firms` had no unique constraint, re-runs duplicated (Bravo twice).
+Added unique index on name+state, insert is `on conflict do nothing`. Re-runs
+skip existing firms — truncate firms + provenance if I want a full re-score.
+
+Target: no source more than ~half my records. If 990-PF stays 31 of 45 it
+still reads as one source with extras.
 
