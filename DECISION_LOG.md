@@ -451,6 +451,20 @@ Fixed: street numbers under 3 digits no longer fire E5.
 Fourth silent bug — hardcoded source_class, 13F wrong page, page titles as
 names, now this. No crashes. Only found by querying values, not counts.
 
+## 2026-07-28 02:40 PKT — Built the CSV exporter
+
+`build_dataset.py` — one row per firm. Extra decision makers in numbered columns.
+
+High-value cells carry basis on the same row — email + status + method, office
+type + confidence + evidence. "Verified with no method" is a claim; file has
+to show how you know inline.
+
+Email is `VERIFIED (SMTP accepted)`, `INFERRED (pattern, not confirmed)`, or
+blank. Never collapsed into one "verified" column.
+
+Failed values go to `audit_rejected_values.csv`, not the deliverable. Script
+prints coverage and source split for methodology. SFOs first, then confidence.
+
 ## 2026-07-28 03:20 PKT — Enrichment on all 53
 
 Ran principals, email, signals on all qualified firms.
