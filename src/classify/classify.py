@@ -1,5 +1,5 @@
 """
-Step 3: CLASSIFICATION — prove what the firm actually is.
+Step 3: CLASSIFICATION - prove what the firm actually is.
 
 Linkage found a company that might be the family's operating entity.
 This step decides three things:
@@ -41,11 +41,18 @@ meaningful states, not two:
 My first version treated this as binary and would have scored the INACTIVE
 case backwards.
 
-ONE MORE TRAP
--------------
-IAPD search is fuzzy. Querying "Hall Capital Partners" also returns
-"Halliday Capital, Inc." A hit is NOT a match. Every result is name-similarity
-checked before it is allowed to count as evidence.
+TWO TRAPS I HIT AND FIXED
+-------------------------
+1. IAPD search is fuzzy. Querying "Hall Capital Partners" also returns
+   "Halliday Capital, Inc." A hit is NOT a match. Every result is
+   name-similarity checked before it counts as evidence.
+
+2. Live page fetch fails often. Family office sites are frequently one page,
+   JS-rendered, or bot-blocked - so failure is the NORMAL case for this entity
+   type, not an edge case. First run lost "Heinz Family Office" and "Beemok
+   Capital Family Office" - both real SFOs - purely because the fetch failed
+   and the LLM never ran. Now falls back to the search snippet, and marks
+   snippet-derived evidence as weaker in the provenance trail.
 """
 import os
 import re
@@ -67,6 +74,11 @@ IAPD_SEARCH = "https://api.adviserinfo.sec.gov/search/firm"
 NAME_MATCH_THRESHOLD = 0.80
 
 OPENAI_KEY = os.environ.get("OPENAI_API_KEY")
+MODEL = os.environ.get("CLASSIFY_MODEL", "gpt-5.1")
+
+# Minimum characters before we trust an E1 self-description claim.
+# A three-line contact page is not evidence of a family office.
+MIN_PAGE_CHARS_FOR_STRONG = 300
 
 
 # ----------------------------------------------------------------------
@@ -153,41 +165,68 @@ def check_adv(entity_name):
 
 
 # ----------------------------------------------------------------------
-# EVIDENCE SOURCE 2 - the entity's own page
+# EVIDENCE SOURCE 2 - the entity's own page, with snippet fallback
 # ----------------------------------------------------------------------
 def fetch_page(url, max_chars=6000):
+    if not url:
+        return None, "no_url"
     try:
-        r = requests.get(url, headers=UA, timeout=25)
+        r = requests.get(url, headers=UA, timeout=20)
         if r.status_code != 200:
-            return None
+            return None, f"http_{r.status_code}"
         text = re.sub(r"<script.*?</script>", " ", r.text, flags=re.S | re.I)
         text = re.sub(r"<style.*?</style>", " ", text, flags=re.S | re.I)
         text = re.sub(r"<[^>]+>", " ", text)
         text = re.sub(r"\s+", " ", text).strip()
-        return text[:max_chars] if len(text) > 120 else None
-    except Exception:
-        return None
+        if len(text) < 120:
+            return None, "too_short"
+        return text[:max_chars], "ok"
+    except requests.exceptions.Timeout:
+        return None, "timeout"
+    except Exception as e:
+        return None, type(e).__name__
+
+
+def get_text_for_llm(row):
+    """
+    Live page first. Falls back to the stored search snippet, because family
+    office sites frequently do not load. Returns (text, source_label).
+    """
+    text, reason = fetch_page(row.get("matched_url"))
+    if text:
+        return text, "live_page"
+
+    snippet = row.get("matched_snippet")
+    title = row.get("matched_entity") or ""
+    if snippet:
+        return f"{title}. {snippet}", "search_snippet"
+
+    if title:
+        return title, "title_only"
+
+    return None, f"none({reason})"
 
 
 # ----------------------------------------------------------------------
-# EVIDENCE SOURCE 3 - LLM reads the page and extracts claims
+# EVIDENCE SOURCE 3 - LLM reads the text and extracts claims
 #
 # NOTE: the model EXTRACTS, it does not DECIDE. The gate below is my code.
 # ----------------------------------------------------------------------
-CLASSIFY_PROMPT = """You are reading a web page about a company. Decide what
-kind of entity it is. Be conservative - say unknown rather than guessing.
+CLASSIFY_PROMPT = """You are reading text about a company. Decide what kind of
+entity it is. Be conservative - say unknown rather than guessing.
 
 Company name from search: {entity}
 Family surname we are testing: {surname}
+Text source: {source}
 
-PAGE TEXT:
+TEXT:
 {page}
 
 Return ONLY valid JSON, no markdown, no preamble:
 {{
   "is_family_office": true | false | null,
   "fo_type": "single_family" | "multi_family" | "unknown",
-  "evidence_quote": "short phrase from the page that supports this, or null",
+  "evidence_quote": "short phrase from the text that supports this, or null",
   "serves_multiple_families": true | false | null,
   "surname_connected": true | false | null,
   "aum_mentioned": "text or null",
@@ -196,54 +235,71 @@ Return ONLY valid JSON, no markdown, no preamble:
 }}
 
 Rules:
-- is_family_office = true ONLY if the page describes managing one family's or
+- is_family_office = true ONLY if the text describes managing one family's or
   a small number of families' private capital. A wealth manager with public
   clients is false.
-- If the page advertises "family office services" TO clients, that is a wealth
+- If the text advertises "family office services" TO clients, that is a wealth
   manager, not a family office. Set false.
-- surname_connected = true only if the page ties the company to the {surname}
+- surname_connected = true only if the text ties the company to the {surname}
   family specifically.
+- If the text is a search snippet rather than the firm's own page, be MORE
+  conservative - a snippet can repeat a directory's label rather than the
+  firm's own description.
 - If unclear, use null. Do not guess."""
 
 
-def llm_classify(entity, surname, page_text):
-    if not OPENAI_KEY or not page_text:
+def llm_classify(entity, surname, page_text, source_label):
+    if not OPENAI_KEY:
+        print("      LLM: skipped (no OPENAI_API_KEY)")
         return None
+    if not page_text:
+        print("      LLM: skipped (no text)")
+        return None
+
+    t0 = time.time()
+    print(f"      LLM: calling {MODEL} on {len(page_text)} chars "
+          f"from {source_label} ...", end="", flush=True)
     try:
         r = requests.post(
             "https://api.openai.com/v1/chat/completions",
             headers={"Authorization": f"Bearer {OPENAI_KEY}",
                      "Content-Type": "application/json"},
             json={
-                "model": "gpt-5.1",
+                "model": MODEL,
                 "messages": [{
                     "role": "user",
                     "content": CLASSIFY_PROMPT.format(
-                        entity=entity, surname=surname, page=page_text)
+                        entity=entity, surname=surname,
+                        page=page_text, source=source_label)
                 }],
-                #"temperature": 0,
             },
-            timeout=60,
+            timeout=90,
         )
         r.raise_for_status()
         txt = r.json()["choices"][0]["message"]["content"]
         txt = re.sub(r"^```(?:json)?|```$", "", txt.strip(), flags=re.M).strip()
-        return json.loads(txt)
+        out = json.loads(txt)
+        dt = time.time() - t0
+        print(f" done in {dt:.1f}s -> fo={out.get('is_family_office')} "
+              f"type={out.get('fo_type')} surname={out.get('surname_connected')}")
+        if out.get("reasoning"):
+            print(f"      LLM says: {out['reasoning'][:110]}")
+        return out
     except Exception as e:
-        print(f"    ! llm failed: {e}")
+        print(f" FAILED: {e}")
         return None
 
 
 # ----------------------------------------------------------------------
 # THE TWO-EVIDENCE RULE
 # ----------------------------------------------------------------------
-def decide(row, adv, llm, page_text):
+def decide(row, adv, llm, page_text, text_source):
     """
     Returns (fo_type, inclusion_status, evidence_list, confidence)
 
     STRONG evidence (at least one required):
-      E1  page explicitly describes itself as a family office
-      E2  page ties the entity to this specific family surname
+      E1  text explicitly describes the entity as a family office
+      E2  text ties the entity to this specific family surname
       E5  foundation street number matches ADV filed address or entity page
 
     SUPPORTING evidence (cannot qualify a firm alone):
@@ -254,15 +310,24 @@ def decide(row, adv, llm, page_text):
     ev = []
     surname = row["surname"]
     status_adv = adv.get("status")
+    src_word = {"live_page": "firm page",
+                "search_snippet": "search snippet",
+                "title_only": "result title"}.get(text_source, text_source)
+
+    thin = (page_text is None) or (len(page_text) < MIN_PAGE_CHARS_FOR_STRONG)
 
     # --- STRONG ---
     if llm and llm.get("is_family_office") is True:
         q = llm.get("evidence_quote")
-        ev.append("E1 page self-describes as a family office"
-                  + (f': "{q[:80]}"' if q else ""))
+        label = f"E1 {src_word} describes entity as a family office"
+        if thin:
+            label += " [thin source]"
+        if q:
+            label += f': "{q[:80]}"'
+        ev.append(label)
 
     if llm and llm.get("surname_connected") is True:
-        ev.append(f"E2 page connects entity to the {surname} family")
+        ev.append(f"E2 {src_word} connects entity to the {surname} family")
 
     street = (row.get("street") or "").strip()
     m = re.match(r"^\d+", street)
@@ -272,14 +337,14 @@ def decide(row, adv, llm, page_text):
             ev.append(f"E5 foundation street number {num} matches SEC ADV "
                       f"filed address ({adv['adv_address'][:60]})")
         elif page_text and num in page_text:
-            ev.append(f"E5 foundation street number {num} appears on "
-                      f"entity page")
+            ev.append(f"E5 foundation street number {num} appears in "
+                      f"{src_word}")
 
     # --- SUPPORTING ---
     if status_adv == "registered_active":
         ev.append(f"E3 active SEC-registered adviser (CRD {adv.get('crd')}, "
-                  f"name match {adv.get('name_similarity')}) -> serves outside "
-                  f"clients")
+                  f"name match {adv.get('name_similarity')}) -> serves "
+                  f"outside clients")
 
     elif status_adv == "registered_inactive":
         ev.append(f"E4 SEC adviser registration INACTIVE (CRD {adv.get('crd')}) "
@@ -306,15 +371,23 @@ def decide(row, adv, llm, page_text):
     strong = [e for e in ev if e.startswith(("E1", "E2", "E5"))]
     qualified = len(ev) >= 2 and len(strong) >= 1
 
-    # Never qualify a firm the page says is NOT a family office.
-    # Misclassification costs more than an honest blank.
+    # A title-only source cannot carry a record on its own. "X Family Office"
+    # in a page title is a name, not evidence.
+    if text_source == "title_only" and len(strong) < 2:
+        qualified = False
+        ev.append("BLOCKED: only the result title was available - a name "
+                  "containing 'family office' is not affirmative evidence")
+
+    # Never qualify a firm the text says is NOT a family office.
     if llm and llm.get("is_family_office") is False:
         qualified = False
-        ev.append("BLOCKED: page indicates this is a wealth manager, not a "
+        ev.append("BLOCKED: source indicates this is a wealth manager, not a "
                   "family office")
 
     status = "qualified" if qualified else "rejected_type_unproven"
     confidence = round(min(0.95, 0.20 * len(ev) + 0.15 * len(strong)), 2)
+    if text_source != "live_page":
+        confidence = round(confidence * 0.85, 2)   # discount weaker sourcing
 
     return fo_type, status, ev, confidence
 
@@ -323,7 +396,8 @@ def decide(row, adv, llm, page_text):
 def run(limit=None, min_score=0.30):
     sql = """
         select candidate_id, surname, city, state, street, assets_usd,
-               raw_name, matched_entity, matched_url, match_score, source_url
+               raw_name, matched_entity, matched_url, matched_snippet,
+               match_score, source_url
         from linkage_queue
         where linkage_status in ('linked','weak')
           and match_score >= %%s
@@ -337,18 +411,26 @@ def run(limit=None, min_score=0.30):
         cols = [d[0] for d in cur.description]
         rows = [dict(zip(cols, r)) for r in cur.fetchall()]
 
-    print(f"classifying {len(rows)} entities\n")
+    print(f"classifying {len(rows)} entities with model={MODEL}\n")
     counts = {"qualified": 0, "rejected_type_unproven": 0}
     types = {}
+    sources = {}
 
     for i, row in enumerate(rows, 1):
         entity = row["matched_entity"] or ""
+        print(f"[{i}/{len(rows)}] {row['surname']} -> {entity[:50]}")
 
         adv = check_adv(entity)
-        page = fetch_page(row["matched_url"])
-        llm = llm_classify(entity, row["surname"], page) if page else None
+        print(f"      ADV: {adv['status']}"
+              + (f" (CRD {adv['crd']}, sim {adv['name_similarity']})"
+                 if adv.get("crd") else ""))
 
-        fo_type, status, ev, conf = decide(row, adv, llm, page)
+        text, text_source = get_text_for_llm(row)
+        sources[text_source] = sources.get(text_source, 0) + 1
+
+        llm = llm_classify(entity, row["surname"], text, text_source)
+
+        fo_type, status, ev, conf = decide(row, adv, llm, text, text_source)
         counts[status] += 1
         types[fo_type] = types.get(fo_type, 0) + 1
 
@@ -366,7 +448,8 @@ def run(limit=None, min_score=0.30):
                 row.get("city"), row.get("state"),
                 row.get("matched_url"), status,
                 f"{len(ev)} evidence items, "
-                f"{len([e for e in ev if e.startswith(('E1','E2','E5'))])} strong",
+                f"{len([e for e in ev if e.startswith(('E1','E2','E5'))])} "
+                f"strong, text from {text_source}",
                 "irs_990pf", row.get("source_url"),
             ))
             firm_id = cur.fetchone()[0]
@@ -384,20 +467,21 @@ def run(limit=None, min_score=0.30):
                     (f"https://adviserinfo.sec.gov/firm/summary/{adv.get('crd')}"
                      if is_adv and adv.get("crd") else row.get("matched_url")),
                     "sec_adv" if is_adv else "firm_website",
-                    "api" if is_adv else "llm_extract",
+                    "api" if is_adv else f"llm_extract:{text_source}",
                     e.split()[0],
                     "confirmed",
                     conf,
                 ))
 
-        flag = "OK " if status == "qualified" else "   "
-        print(f"{flag}{i}/{len(rows)}  {row['surname']:<12} {fo_type:<15} "
-              f"{conf:.2f}  {len(ev)}ev  {entity[:38]}")
+        flag = "QUALIFIED" if status == "qualified" else "rejected "
+        print(f"      => {flag}  {fo_type}  conf={conf}  {len(ev)} evidence\n")
         time.sleep(0.3)
 
-    print(f"\nqualified={counts['qualified']}  "
+    print("=" * 60)
+    print(f"qualified={counts['qualified']}  "
           f"rejected={counts['rejected_type_unproven']}")
     print("types:", types)
+    print("text sources:", sources)
 
 
 if __name__ == "__main__":

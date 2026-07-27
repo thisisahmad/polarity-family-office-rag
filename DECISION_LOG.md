@@ -224,3 +224,23 @@ came back INACTIVE. I was scoring that wrong.
 Filed address is in the response. I can match
 foundation street to that instead of scraping the company site.
 
+Big one: post-2011 family office exclusion means many SFOs deregistered after
+2011. INACTIVE on a family-office-shaped entity is a positive SFO signal, not
+a negative. My first version had that backwards.
+
+## 2026-07-27 16:10 PKT — Classification first 10
+
+5 qualified of 10. Projects to ~90 across the full set — enough for 50.
+
+Two real FOs wrongly rejected: Heinz Family Office and Beemok Capital. Both
+had only 1 evidence because the page fetch failed and the LLM never ran. These
+are the records I care about most. FO sites are often one page, JS-heavy, or
+block bots — fetch failure is normal here.
+
+Fix: fall back to the search snippet when the live page won't load. Snippet
+evidence is marked weaker in provenance — not the same as the firm's own site.
+
+Flagged: "Contact - Bill George" qualified at 0.95. Looks like a personal page
+not a firm. Checking by hand. If wrong, I need a minimum page length before
+trusting E1.
+
