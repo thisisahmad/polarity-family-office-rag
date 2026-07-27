@@ -451,3 +451,23 @@ Fixed: street numbers under 3 digits no longer fire E5.
 Fourth silent bug — hardcoded source_class, 13F wrong page, page titles as
 names, now this. No crashes. Only found by querying values, not counts.
 
+## 2026-07-28 03:20 PKT — Enrichment on all 53
+
+Ran principals, email, signals on all qualified firms.
+
+47 with at least one principal (88%). 40 with a dated signal (75%).
+Email at principal level: 32 SMTP verified, 35 pattern-inferred (mx_valid),
+46 no domain. Zero undeliverable kept — rejected ones go to audit_rejects.
+
+Three statuses, not collapsed: smtp_verified = server accepted it. mx_valid =
+guessed from name pattern, NOT verified. not_found = no domain or nothing worked.
+
+Email coverage capped by domain coverage — ~56% have a website. Can't derive
+email without a domain. Low coverage on SFOs is the finding, not a bug. They
+don't market. MFOs have sites. I'd rather report real numbers than pad.
+
+Phone near zero — direct dials aren't on public pages and I'm not buying lists.
+
+Cleanup: Byron Allen title came back as prose ("media mogul; founder/own") not
+a job title. Need a pass on titles before CSV ships.
+
