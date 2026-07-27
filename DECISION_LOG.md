@@ -87,8 +87,8 @@ catch those later in classification.
 
 ## Still open
 
-- What asset size means a family probably has a family office. Need to look at
-  the numbers first before I pick.
+- ~~What asset size means a family probably has a family office.~~ Picked $25M
+  for now — 272 pass. Might raise it later.
 - Whether to show real emails and phone numbers on the public demo site.
   Showing them is a privacy problem. Hiding them removes the value the user
   sees. Thinking about showing "verified" without the actual value(because it is personal information).
@@ -140,4 +140,30 @@ Lesson: saving to JSON incrementally during the run saved me. If the DB had been
 the only save point I would have lost 30 minutes of detail fetching. Next step
 is fix the Supabase connection and load from the JSON, not re-run the whole
 harvest.
+
+## 2026-07-27 14:30 PKT — Asset filter and load to Postgres
+
+Picked $25M as the minimum foundation asset size (`MIN_ASSETS = 25_000_000`).
+
+Why: I looked at the numbers in the JSON. Most of the 1832 foundations are
+small — community funds, local charities, stuff that is clearly not a billionaire
+family. A family office usually means serious wealth. $25M in foundation assets
+is not perfect proof but it cuts out the noise. I might move this up later if
+272 is still too many. For now it feels like a reasonable first cut.
+
+Built `load_filtered.py` to load into `candidates`. It does not load all 1832.
+It drops rows where:
+- surname is junk (STOPWORDS — added Family, Memorial, Charitable, Heritage,
+  Legacy, Footprints, Ted, Rjs, plus religious ones like Jewish, Catholic, Baptist)
+- assets are missing or below $25M
+- short all-caps strings that look like initials
+
+Result: 1832 raw → **272 kept**. That is enough to work with for linkage and
+still way more than the 50 I need at the end.
+
+Only loading the filtered set into Postgres on purpose. No point filling the DB
+with 1500 small foundations I already know I will reject.
+
+This closes the "what asset size" question for now. Still might tune the number
+after I see linkage results.
 
