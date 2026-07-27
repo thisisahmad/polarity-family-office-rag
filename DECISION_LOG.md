@@ -123,3 +123,21 @@ Interesting: "Bezos" and "Argyros" both appeared. Both are real billionaire
 families with known family offices. This tells me the foundation route actually
 reaches families I would never find on a family office list. I will use Bezos
 as a test case for my linkage code since I already know the answer.
+
+## 2026-07-27 12:50 PKT — First full ProPublica run finished
+
+Ran the script end to end. Harvest plus detail fetch took about 30 minutes.
+
+Got 1832 candidates saved in `data/raw_foundations.json`. That file is good
+1811 have a street address, 1561 have asset numbers. Two orgs failed on SSL
+errors but the script kept going. Everything else enriched fine.
+
+It crashed at the very last step when trying to insert into Postgres. Supabase
+hostname would not resolve from my machine (DNS error). So nothing is in the
+database yet. All the work is sitting in the JSON file only.
+
+Lesson: saving to JSON incrementally during the run saved me. If the DB had been
+the only save point I would have lost 30 minutes of detail fetching. Next step
+is fix the Supabase connection and load from the JSON, not re-run the whole
+harvest.
+
