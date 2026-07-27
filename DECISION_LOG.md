@@ -167,3 +167,33 @@ with 1500 small foundations I already know I will reject.
 This closes the "what asset size" question for now. Still might tune the number
 after I see linkage results.
 
+## 2026-07-27 15:00 PKT — Linkage first run (20 candidates)
+
+8 linked, 9 weak, 3 no match. Hand-checked the 8 linked — real hits include
+Dalio, Sobrato, Schultz FO, Gates, Paulson. Dalio and Sobrato prove the
+foundation route works without any FO list.
+
+Bad matches: people-search pages, "Hallmark" from substring on "Hall", and a
+real KC family office that matched Patterson because of keyword scoring.
+
+Fixed: word boundaries, block directory sites, penalize surname missing from
+title, more negatives (pension, retirement). Raised linked threshold to 0.65.
+
+~25% yield on this batch. If that holds, 272 → ~68 linked — enough for 50
+after classification.
+
+## 2026-07-27 15:10 PKT — Linkage v2 (same 20, after tuning)
+
+Re-ran after fixes. 8 linked → 6 linked but cleaner.
+
+Fixed: Davis people-search now no_match. Hall → Hall Capital Partners, not
+Hallmark retirement plan.
+
+Still wrong: Patterson 0.85 on "Pandi Patterson Family Office" — probably an
+aggregator page, not Patterson's FO. Need to block that domain.
+
+Too tight: Hall Capital and Bainum are real FOs but stuck in weak (0.45). Fine
+for now — I would rather hand-check weak than let junk into linked.
+
+6 linked + 7 weak out of 20. ~82 linked across 272 if it holds. Enough for 50.
+
