@@ -398,3 +398,31 @@ obligation, proof = what the firm says about itself.
 Same pattern as the source_class bug: no error, no crash, looked like 13F
 produced nothing. Only caught it by checking the per-source split.
 
+## 2026-07-28 00:15 PKT — legal_name and website were junk
+
+64 qualified, 50 SFOs. Good counts. Then I looked at the actual field values
+before building the CSV. Both key columns were wrong.
+
+`legal_name` had search titles, not company names — "Schultz Capital Partners
+Family Office - Single Profile", SWFI/Preqin-style junk.
+
+`website` was whatever page classify read. 15 sampled, only 1 was the firm's
+own domain. Rest were news, job boards, Preqin, Tracxn, Yahoo Finance.
+
+Why: classify sets `legal_name = matched_entity` and `website = matched_url`.
+Those were for classification, not customer-facing output. I reused them without
+checking what they actually contained.
+
+Bad for email — needs a real domain. Worse for names — 64 page titles shipped
+as firm names. Doc says every customer string is a claim they check.
+
+Fix: `resolve_firms.py` — clean the name (rules + LLM), find real domain,
+block directories/news. Added `classification_source_url` and `legal_name_raw`
+so the audit trail stays. No verdict changes.
+
+Domain coverage won't be 100%. Real SFOs often have no site. Blank email is
+honest — report the real number.
+
+Same pattern again: no crash, clean run, wrong data. Caught it by looking at
+rows not counts.
+
