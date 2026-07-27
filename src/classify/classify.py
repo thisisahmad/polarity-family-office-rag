@@ -80,6 +80,14 @@ MODEL = os.environ.get("CLASSIFY_MODEL", "gpt-5.1")
 # A three-line contact page is not evidence of a family office.
 MIN_PAGE_CHARS_FOR_STRONG = 300
 
+# Domains that return navigation boilerplate instead of content when scraped.
+# SWFI cost me two real single-family offices (Heinz, Beemok) on the first run:
+# the fetch "succeeded" and returned 3169 chars of pure site chrome, identical
+# for both firms. Route these straight to the snippet fallback.
+PAYWALLED = ["swfinstitute.org", "pitchbook.com", "crunchbase.com",
+             "bloomberg.com", "wsj.com", "ft.com", "zoominfo.com",
+             "dnb.com", "owler.com"]
+
 
 # ----------------------------------------------------------------------
 # EVIDENCE SOURCE 1 - SEC Form ADV registration status
@@ -192,6 +200,18 @@ def get_text_for_llm(row):
     Live page first. Falls back to the stored search snippet, because family
     office sites frequently do not load. Returns (text, source_label).
     """
+    url = (row.get("matched_url") or "").lower()
+
+    # Known boilerplate domains: skip the fetch entirely, it only returns chrome
+    if any(d in url for d in PAYWALLED):
+        snippet = row.get("matched_snippet")
+        title = row.get("matched_entity") or ""
+        if snippet:
+            return f"{title}. {snippet}", "search_snippet"
+        if title:
+            return title, "title_only"
+        return None, "paywalled_no_fallback"
+
     text, reason = fetch_page(row.get("matched_url"))
     if text:
         return text, "live_page"
@@ -297,12 +317,13 @@ def decide(row, adv, llm, page_text, text_source):
     """
     Returns (fo_type, inclusion_status, evidence_list, confidence)
 
-    STRONG evidence (at least one required):
+    IDENTITY evidence (at least one REQUIRED - speaks to what the entity is):
       E1  text explicitly describes the entity as a family office
       E2  text ties the entity to this specific family surname
-      E5  foundation street number matches ADV filed address or entity page
 
     SUPPORTING evidence (cannot qualify a firm alone):
+      E5  foundation street number matches ADV address or entity page
+          (proves co-location, NOT identity)
       E3  actively SEC-registered -> multi-family or wealth manager
       E4  registration INACTIVE   -> consistent with the family office exclusion
       E4b absent from register    -> weakly consistent with the exclusion
@@ -367,13 +388,22 @@ def decide(row, adv, llm, page_text, text_source):
     else:
         fo_type = "undetermined"
 
-    # --- GATE: 2+ items, at least one strong ---
+    # --- GATE: 2+ items, at least one IDENTITY item ---
+    #
+    # E1/E2 speak to WHAT the entity is.
+    # E5 only speaks to WHERE it is.
+    #
+    # First version treated E5 as strong, and "Zorich Family Office" qualified
+    # on a street match alone. The LLM had already read the page and said it
+    # was a construction/tenant build-out project. A shared address proves
+    # co-location, never identity. Identity evidence is now mandatory.
+    identity = [e for e in ev if e.startswith(("E1", "E2"))]
     strong = [e for e in ev if e.startswith(("E1", "E2", "E5"))]
-    qualified = len(ev) >= 2 and len(strong) >= 1
+    qualified = len(ev) >= 2 and len(identity) >= 1
 
     # A title-only source cannot carry a record on its own. "X Family Office"
     # in a page title is a name, not evidence.
-    if text_source == "title_only" and len(strong) < 2:
+    if text_source == "title_only" and len(identity) < 2:
         qualified = False
         ev.append("BLOCKED: only the result title was available - a name "
                   "containing 'family office' is not affirmative evidence")
@@ -448,8 +478,8 @@ def run(limit=None, min_score=0.30):
                 row.get("city"), row.get("state"),
                 row.get("matched_url"), status,
                 f"{len(ev)} evidence items, "
-                f"{len([e for e in ev if e.startswith(('E1','E2','E5'))])} "
-                f"strong, text from {text_source}",
+                f"{len([e for e in ev if e.startswith(('E1','E2'))])} "
+                f"identity, text from {text_source}",
                 "irs_990pf", row.get("source_url"),
             ))
             firm_id = cur.fetchone()[0]

@@ -14,15 +14,24 @@ v1: substring surname match, keyword scoring, linked >= 0.55
       - "Steven Davis in Peabody, MA 67 people found"  (people-search directory)
       - "Hallmark Cards Retirement Plan"               ("Hall" inside "Hallmark")
       - "Pandi Capital | Kansas City Single Family Office" scored 0.85 for
-        Patterson — real SFO, wrong family. Page mentioned "family office" so
-        keyword scoring rewarded an entity that has no connection to Patterson.
+        Patterson - real SFO, wrong family. Page mentioned "family office" so
+        keyword scoring rewarded an entity with no connection to Patterson.
 
-v2 (this file):
-      - word-boundary matching, kills the Hallmark class of bug
-      - hard zero on directory / aggregator domains
-      - penalty when the surname is absent from the result TITLE
-      - pension / retirement / attendee-list added to negatives
-      - linked threshold raised 0.55 -> 0.65
+v2: word-boundary matching, hard zero on directory/aggregator domains, penalty
+    when the surname is absent from the result TITLE, pension/retirement/
+    attendee-list added to negatives, linked threshold 0.55 -> 0.65.
+    Re-ran the same 20: Davis dropped to no_match, Hallmark bug gone (now
+    correctly returns Hall Capital Partners). 6 linked, all with the surname
+    in the entity title.
+
+v3 (this file): capture the search SNIPPET alongside title and URL.
+    Classification was losing real single-family offices - Heinz and Beemok
+    both got title_only text (19 and 60 chars) because their best match was a
+    SWFI profile page that returns navigation boilerplate when scraped. The
+    model correctly refused to classify a bare name. The snippet usually
+    carries the actual description ("X is the family office of Y"), which is
+    the identity evidence the classifier needs. Storing it costs nothing at
+    linkage time and recovers records that would otherwise be unprovable.
 """
 import os
 import re
@@ -61,6 +70,11 @@ NEGATIVE_WORDS = [
 
 # Domains that are directories, aggregators or data resellers.
 # A hit here is never our own evidence of an operating entity.
+#
+# NOTE: swfinstitute is deliberately NOT blocked here. Its pages are useless
+# to scrape (navigation boilerplate) but its search SNIPPETS carry real firm
+# descriptions, which classification can use. Blocking it at linkage would
+# throw away genuine single-family offices.
 BLOCK_DOMAINS = [
     "whitepages", "spokeo", "peoplefinder", "radaris", "truepeople",
     "beenverified", "intelius", "fastpeoplesearch", "usphonebook",
@@ -84,7 +98,7 @@ def serp(query, num=10):
 
 
 def build_queries(surname, city, state):
-    """3 queries per candidate. Keep tight — API budget is finite."""
+    """3 queries per candidate. Keep tight - API budget is finite."""
     loc = f"{city} {state}" if city else (state or "")
     return [
         f'"{surname} Capital" OR "{surname} Holdings" OR "{surname} Partners" {loc}',
@@ -111,8 +125,6 @@ def score_result(result, surname, foundation_street, foundation_city):
     blob = f"{title} {snippet}"
 
     # HARD ZERO 1: directory / aggregator domains.
-    # These pages list people or companies generically. A hit here tells us
-    # nothing about whether this family runs an operating entity.
     if any(d in link for d in BLOCK_DOMAINS):
         return 0.0, ["blocked_domain"]
 
@@ -134,7 +146,7 @@ def score_result(result, surname, foundation_street, foundation_city):
         signals.append("says_family_office")
         score += 0.30
 
-    # Address match — strongest single signal we have
+    # Address match - strongest single signal we have
     if foundation_street:
         m = re.match(r"^\d+", foundation_street.strip())
         if m and m.group(0) in blob:
@@ -152,8 +164,7 @@ def score_result(result, surname, foundation_street, foundation_city):
         score += 0.15
 
     # PENALTY: surname not in the entity name itself.
-    # This is what let "Pandi Capital" score 0.85 for Patterson — the page
-    # talked about family offices, but the company is not the family's.
+    # This is what let "Pandi Capital" score 0.85 for Patterson.
     if not has_word(surname, title):
         signals.append("surname_not_in_title")
         score -= 0.35
@@ -171,7 +182,8 @@ def score_result(result, surname, foundation_street, foundation_city):
 
 def process_one(row):
     surname = row["surname"]
-    best = {"score": 0.0, "entity": None, "url": None, "signals": []}
+    best = {"score": 0.0, "entity": None, "url": None,
+            "signals": [], "snippet": None}
 
     for q in build_queries(surname, row.get("city"), row.get("state")):
         try:
@@ -190,6 +202,10 @@ def process_one(row):
                     "entity": res.get("title"),
                     "url": res.get("link"),
                     "signals": sigs,
+                    # v3: the snippet is often the ONLY usable description of
+                    # the firm. Store it now so classification has something
+                    # to read when the live page turns out to be boilerplate.
+                    "snippet": res.get("snippet"),
                 }
         time.sleep(0.3)
 
@@ -202,7 +218,8 @@ def run(limit=None, reset=False):
             cur.execute("""
                 update linkage_queue
                 set linkage_status='pending', matched_entity=null,
-                    matched_url=null, match_signals=null, match_score=null
+                    matched_url=null, match_signals=null, match_score=null,
+                    matched_snippet=null
             """)
         print("reset all rows to pending")
 
@@ -222,6 +239,7 @@ def run(limit=None, reset=False):
     print(f"processing {len(rows)} candidates\n")
 
     counts = {"linked": 0, "weak": 0, "no_match": 0}
+    with_snippet = 0
 
     for i, row in enumerate(rows, 1):
         best = process_one(row)
@@ -231,24 +249,29 @@ def run(limit=None, reset=False):
             else "no_match"
         )
         counts[status] += 1
+        if best.get("snippet"):
+            with_snippet += 1
 
         with conn() as c, c.cursor() as cur:
             cur.execute(
                 """
                 update linkage_queue
                 set linkage_status=%s, matched_entity=%s, matched_url=%s,
-                    match_signals=%s, match_score=%s
+                    match_signals=%s, match_score=%s, matched_snippet=%s
                 where candidate_id=%s
                 """,
                 (status, best["entity"], best["url"], best["signals"],
-                 round(best["score"], 2), row["candidate_id"]),
+                 round(best["score"], 2), best.get("snippet"),
+                 row["candidate_id"]),
             )
 
+        snip_flag = "s" if best.get("snippet") else " "
         print(f"{i}/{len(rows)}  {row['surname']:<14} {status:<9} "
-              f"{best['score']:.2f}  {(best['entity'] or '')[:55]}")
+              f"{best['score']:.2f} {snip_flag} {(best['entity'] or '')[:50]}")
 
     print(f"\nlinked={counts['linked']}  weak={counts['weak']}  "
           f"no_match={counts['no_match']}")
+    print(f"with snippet captured: {with_snippet}/{len(rows)}")
 
 
 if __name__ == "__main__":

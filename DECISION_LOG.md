@@ -244,3 +244,20 @@ Flagged: "Contact - Bill George" qualified at 0.95. Looks like a personal page
 not a firm. Checking by hand. If wrong, I need a minimum page length before
 trusting E1.
 
+## 2026-07-27 16:55 PKT — Gate bug: address is not identity
+
+Zorich qualified wrongly. LLM said it was a construction project called "Zorich
+Family Office" — not a FO. But E5 (street match) + E4b (not on SEC register)
+hit 2 evidence with 1 "strong" and the gate passed.
+
+Bug: E5 only proves same address, not what the entity is. Fixed — must have
+E1 or E2 (identity) to qualify. E5 is supporting only.
+
+This is the serious error the task doc warns about: unconfirmed firm shown as
+proven FO. I was counting evidence, not checking type.
+
+Rate 50% → 40%. ~72 projected. Still above 50.
+
+GPT-5.1 helped — rejected Harris Holdings (garden products), Royce (LEI page),
+Patterson (construction). Catching stuff my rules miss.
+
