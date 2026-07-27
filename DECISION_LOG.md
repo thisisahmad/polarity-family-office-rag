@@ -355,7 +355,7 @@ Press added 14 but 4 shouldn't have qualified Berritto, Mitchell, Alpha
 Capital, Angeles. LLM said it couldn't confirm FO status but E6 alone passed them.
 
 Bug: I counted "snippet contains family office" as attestation. Wrong. The doc
-says name usage is not evidence — the article has to actually describe the
+says name usage is not evidence the article has to actually describe the
 entity as a family office.
 
 Fixed: E6 only counts as identity when the LLM confirms. Otherwise E6w,
@@ -363,4 +363,19 @@ supporting only. Dropped those 4. Down to 41.
 
 Press yield lower than expected state queries especially returned nothing.
 Need jobs and EDGAR for a balanced split, not 990-PF plus a handful.
+
+## 2026-07-27 21:05 PKT — Source class hardcoded (silent bug)
+
+classify.py stamped every firm as `irs_990pf` — even the 14 press records.
+No error, no crash. Pipeline looked fine. The per-source breakdown would have
+shown 100% from one source and I would have believed it.
+
+Fixed: read `row.get("source_class")`. Backfilled 45 rows from candidates.
+Also fixed identity count in `inclusion_reason` — trailing spaces so E6w
+doesn't count as identity.
+
+Deleted 4 bad records and re-ran. Had to delete first — `on conflict do nothing`
+would have just skipped them with the old verdict.
+
+Running jobs and EDGAR next.
 

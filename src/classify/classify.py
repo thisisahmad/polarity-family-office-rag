@@ -313,20 +313,43 @@ def llm_classify(entity, surname, page_text, source_label):
 # ----------------------------------------------------------------------
 # THE TWO-EVIDENCE RULE
 # ----------------------------------------------------------------------
+# ======================================================================
+# REPLACE YOUR ENTIRE decide() FUNCTION WITH THIS
+# ======================================================================
 def decide(row, adv, llm, page_text, text_source):
     """
     Returns (fo_type, inclusion_status, evidence_list, confidence)
 
-    IDENTITY evidence (at least one REQUIRED - speaks to what the entity is):
-      E1  text explicitly describes the entity as a family office
-      E2  text ties the entity to this specific family surname
+    IDENTITY evidence - at least one REQUIRED. Speaks to WHAT the entity is:
+      E1   the firm's own page describes it as a family office
+      E2   the page ties the entity to this specific family surname
+      E6   press or job posting ATTESTS the entity is a family office
 
-    SUPPORTING evidence (cannot qualify a firm alone):
-      E5  foundation street number matches ADV address or entity page
-          (proves co-location, NOT identity)
-      E3  actively SEC-registered -> multi-family or wealth manager
-      E4  registration INACTIVE   -> consistent with the family office exclusion
-      E4b absent from register    -> weakly consistent with the exclusion
+    SUPPORTING evidence - cannot qualify a record alone:
+      E5   foundation street number matches ADV address or entity page
+           (proves co-location, never identity)
+      E3   actively SEC-registered -> serves outside clients -> MFO/adviser
+      E4   registration INACTIVE -> consistent with the Dodd-Frank exclusion
+      E4b  absent from the register -> weakly consistent
+      E6w  a press/job source mentions the entity but did not confirm its type
+
+    THE E6 / E6w DISTINCTION - learned the hard way
+    -----------------------------------------------
+    An article SAYING "X is the family office of Y"    -> attestation, evidence
+    An article merely USING the name "X Family Office"  -> name usage, NOT evidence
+
+    First version treated any snippet containing "family office" as identity
+    evidence. Four records qualified that way while the LLM had read the source
+    and explicitly said it could NOT confirm family office status - Berritto,
+    Mitchell, Alpha Capital, Angeles. That is precisely the failure the task doc
+    names: a firm does not qualify because it "carries family-related words in
+    its name, or appears in a source associated with family offices".
+
+    So E6 is identity evidence ONLY when the model independently confirmed.
+    Otherwise it degrades to E6w, which carries weight but cannot carry a record.
+
+    NOTE ON STRING PREFIXES: the trailing space in "E6 " is load-bearing.
+    Without it, startswith("E6") would also match "E6w" and defeat the fix.
     """
     ev = []
     surname = row["surname"]
@@ -337,7 +360,7 @@ def decide(row, adv, llm, page_text, text_source):
 
     thin = (page_text is None) or (len(page_text) < MIN_PAGE_CHARS_FOR_STRONG)
 
-    # --- STRONG ---
+    # ---------------- IDENTITY ----------------
     if llm and llm.get("is_family_office") is True:
         q = llm.get("evidence_quote")
         label = f"E1 {src_word} describes entity as a family office"
@@ -347,9 +370,29 @@ def decide(row, adv, llm, page_text, text_source):
             label += f': "{q[:80]}"'
         ev.append(label)
 
-    if llm and llm.get("surname_connected") is True:
+    if llm and llm.get("surname_connected") is True and surname:
         ev.append(f"E2 {src_word} connects entity to the {surname} family")
 
+    # E6 / E6w - press and job postings only.
+    # sec_13f is deliberately EXCLUDED: hedge funds, RIAs and pension managers
+    # all file 13F. The filing establishes the legal entity, never its type.
+    # Those records must earn E1 from the firm's own page.
+    src_class = row.get("source_class") or ""
+    if src_class in ("press_news", "job_posting"):
+        snip = row.get("matched_snippet") or ""
+        if snip:
+            if llm and llm.get("is_family_office") is True:
+                ev.append(f'E6 {src_class} attests entity is a family office: '
+                          f'"{snip[:90]}"')
+            else:
+                ev.append(f'E6w {src_class} mentions entity but the source did '
+                          f'not confirm family office status - supporting only')
+
+    # ---------------- SUPPORTING ----------------
+    # E5 - co-location. An early version treated this as strong and "Zorich
+    # Family Office" qualified; it was a construction project at the right
+    # address. A shared address can equally be a registered agent, a law firm,
+    # an accountant, or a virtual office. It proves where, never what.
     street = (row.get("street") or "").strip()
     m = re.match(r"^\d+", street)
     if m:
@@ -358,10 +401,8 @@ def decide(row, adv, llm, page_text, text_source):
             ev.append(f"E5 foundation street number {num} matches SEC ADV "
                       f"filed address ({adv['adv_address'][:60]})")
         elif page_text and num in page_text:
-            ev.append(f"E5 foundation street number {num} appears in "
-                      f"{src_word}")
+            ev.append(f"E5 foundation street number {num} appears in {src_word}")
 
-    # --- SUPPORTING ---
     if status_adv == "registered_active":
         ev.append(f"E3 active SEC-registered adviser (CRD {adv.get('crd')}, "
                   f"name match {adv.get('name_similarity')}) -> serves "
@@ -376,7 +417,7 @@ def decide(row, adv, llm, page_text, text_source):
         ev.append("E4b absent from the SEC adviser register, weakly "
                   "consistent with the family office exclusion")
 
-    # --- TYPE ---
+    # ---------------- TYPE ----------------
     if status_adv == "registered_active":
         fo_type = "multi_family"
     elif llm and llm.get("fo_type") in ("single_family", "multi_family"):
@@ -388,46 +429,40 @@ def decide(row, adv, llm, page_text, text_source):
     else:
         fo_type = "undetermined"
 
-    # --- GATE: 2+ items, at least one IDENTITY item ---
-    #
-    # E1/E2 speak to WHAT the entity is.
-    # E5 only speaks to WHERE it is.
-    #
-    # First version treated E5 as strong, and "Zorich Family Office" qualified
-    # on a street match alone. The LLM had already read the page and said it
-    # was a construction/tenant build-out project. A shared address proves
-    # co-location, never identity. Identity evidence is now mandatory.
-    identity = [e for e in ev if e.startswith(("E1", "E2"))]
-    strong = [e for e in ev if e.startswith(("E1", "E2", "E5"))]
+    # ---------------- GATE ----------------
+    # Trailing spaces are required. "E6 " is attestation; "E6w " is not.
+    identity = [e for e in ev if e.startswith(("E1 ", "E2 ", "E6 "))]
+    strong = [e for e in ev if e.startswith(("E1 ", "E2 ", "E5 ", "E6 "))]
+
     qualified = len(ev) >= 2 and len(identity) >= 1
 
-    # A title-only source cannot carry a record on its own. "X Family Office"
-    # in a page title is a name, not evidence.
+    # A result title alone cannot carry a record. A company NAMED
+    # "X Family Office" is a name, not affirmative evidence.
     if text_source == "title_only" and len(identity) < 2:
         qualified = False
         ev.append("BLOCKED: only the result title was available - a name "
                   "containing 'family office' is not affirmative evidence")
 
-    # Never qualify a firm the text says is NOT a family office.
+    # Never qualify a firm the source says is NOT a family office.
+    # Misclassification costs more than an honest blank.
     if llm and llm.get("is_family_office") is False:
         qualified = False
-        ev.append("BLOCKED: source indicates this is a wealth manager, not a "
-                  "family office")
+        ev.append("BLOCKED: source indicates this is a wealth manager or "
+                  "operating business, not a family office")
 
     status = "qualified" if qualified else "rejected_type_unproven"
-    confidence = round(min(0.95, 0.20 * len(ev) + 0.15 * len(strong)), 2)
+
+    confidence = round(min(0.95, 0.20 * len(ev) + 0.15 * len(identity)), 2)
     if text_source != "live_page":
-        confidence = round(confidence * 0.85, 2)   # discount weaker sourcing
+        confidence = round(confidence * 0.85, 2)    # weaker sourcing discount
 
     return fo_type, status, ev, confidence
-
-
 # ----------------------------------------------------------------------
 def run(limit=None, min_score=0.30):
     sql = """
         select candidate_id, surname, city, state, street, assets_usd,
                raw_name, matched_entity, matched_url, matched_snippet,
-               match_score, source_url
+               match_score, source_url, source_class
         from linkage_queue
         where linkage_status in ('linked','weak')
           and match_score >= %%s
@@ -465,6 +500,8 @@ def run(limit=None, min_score=0.30):
         types[fo_type] = types.get(fo_type, 0) + 1
 
         with conn() as c, c.cursor() as cur:
+            # on conflict do nothing: re-runs skip firms already present.
+            # To re-score everything, truncate firms + provenance first.
             cur.execute("""
                 insert into firms
                   (candidate_id, legal_name, fo_type, fo_type_evidence,
@@ -472,17 +509,22 @@ def run(limit=None, min_score=0.30):
                    website, inclusion_status, inclusion_reason,
                    discovery_source_class, discovery_source_url)
                 values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                on conflict do nothing
                 returning firm_id
             """, (
                 row["candidate_id"], entity, fo_type, " | ".join(ev), conf,
                 row.get("city"), row.get("state"),
                 row.get("matched_url"), status,
                 f"{len(ev)} evidence items, "
-                f"{len([e for e in ev if e.startswith(('E1','E2'))])} "
+                f"{len([e for e in ev if e.startswith(('E1 ','E2 ','E6 '))])} "
                 f"identity, text from {text_source}",
-                "irs_990pf", row.get("source_url"),
+                row.get("source_class") or "irs_990pf", row.get("source_url"),
             ))
-            firm_id = cur.fetchone()[0]
+            row_ret = cur.fetchone()
+            if not row_ret:
+                print("      => skipped (already in firms)")
+                continue
+            firm_id = row_ret[0]
 
             for e in ev:
                 is_adv = e.startswith(("E3", "E4"))
