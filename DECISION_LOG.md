@@ -621,3 +621,6 @@ Both fixed in retrieval.py and grounding.py. Named firm in the question now clea
 office_type/confirmed-only filters and scopes to that firm — Pitcairn correctly
 returns multi-family. Gate 1 zero-claims now states a dataset finding, not a query error.
 
+## 2026-07-28 16:30 PKT — Added the Validation Layer 
+
+Added the validation layer and wrote my findings
