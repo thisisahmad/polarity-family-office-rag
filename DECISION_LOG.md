@@ -523,3 +523,49 @@ Sources: 990-PF 26 (49%), press 23 (43%), jobs 4 (8%). No source over half.
 42 SFO, 11 MFO. Calling dataset final. Skipping CSV cosmetics — remaining time
 goes to RAG and getting it live.
 
+## 2026-07-28 13:10 PKT — RAG: claim-level chunks, not firm rows
+
+Each firm becomes ~8 text pieces, one per field. 53 firms → ~400 claims.
+
+Why not one chunk per firm: if the whole record is one chunk, the answer can
+cite "the record" and I can't check which field backed which sentence. One
+claim per field means the answer can only reference claims that were retrieved —
+the check is code, not a prompt.
+
+Also writing NEGATIVE claims. No AUM, no decision maker, no dated activity →
+an explicit chunk saying NOT AVAILABLE, do not estimate. "What's the AUM of X"
+retrieves "AUM is not available" instead of nothing. Nothing retrieved → the
+model improvises. "Doesn't exist" retrieved → it can refuse.
+
+## 2026-07-28 13:30 PKT — Split into layers
+
+Not one rag.py. Separate modules, one-way imports only:
+
+  db.py, build_index.py, retrieval.py, grounding.py, main.py, index.html, query_test.py
+
+The doc scores layer separation and fails tutorial-style single-file submissions.
+Rule: retrieval never imports grounding; grounding never imports retrieval or db.
+A cycle makes the split cosmetic — a reviewer grepping imports would see it.
+
+Two gates in grounding.py, both in code:
+  Gate 1 — no claims or similarity too low → refuse before LLM
+  Gate 2 — each sentence tagged with claim_ids; strip any id not in the retrieved set
+
+## 2026-07-28 13:40 PKT — Dropped Render, going to Fly.io
+
+Render free tier sleeps after 15 min idle. Cold start 40+ seconds — first thing
+a reviewer hits when they open the URL.
+
+Fly.io gives an always-on container. `auto_stop_machines = false`,
+`min_machines_running = 1`. Fallback if Fly fights me: Hugging Face Spaces (48h sleep).
+
+## 2026-07-28 13:45 PKT — One deploy, not frontend + backend split
+
+Considered React on Vercel + FastAPI on Fly. Decided against it.
+
+Frontend is one self-contained HTML file, Tailwind CDN, no build step. Vercel
+adds nothing. Splitting adds a second deployment, CORS surface, two things that
+can break. With ~5 hours left that's the wrong trade.
+
+React wouldn't make it look better — type scale, colour, spacing do that, and
+this is a single search page. Layer separation is in the code, not the hosting.

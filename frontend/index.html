@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>POLARITY iQ — Family Office Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#4A90E2', light: '#6BA8F0', dim: '#3A7BD5' },
+            muted: '#8892A4',
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            mono: ['IBM Plex Mono', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --brand: #4A90E2;
+      --brand-glow: rgba(74, 144, 226, 0.45);
+      --glass: rgba(255, 255, 255, 0.045);
+      --glass-hover: rgba(255, 255, 255, 0.07);
+      --glass-border: rgba(255, 255, 255, 0.11);
+      --glass-strong: rgba(255, 255, 255, 0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: #EEF1F6;
+      background: #030408;
+      overflow: hidden;
+    }
+
+    /* Ambient background */
+    .ambient {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden;
+      background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(74,144,226,0.12), transparent),
+                  radial-gradient(ellipse 50% 40% at 100% 50%, rgba(58,123,213,0.08), transparent),
+                  radial-gradient(ellipse 40% 50% at 0% 80%, rgba(74,144,226,0.06), transparent),
+                  #030408;
+    }
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(80px);
+      animation: drift 18s ease-in-out infinite;
+    }
+    .orb-1 { width: 420px; height: 420px; background: rgba(74,144,226,0.18); top: -8%; left: 20%; }
+    .orb-2 { width: 320px; height: 320px; background: rgba(58,123,213,0.14); bottom: 10%; right: -5%; animation-delay: -6s; }
+    .orb-3 { width: 260px; height: 260px; background: rgba(107,168,240,0.1); top: 40%; left: -8%; animation-delay: -12s; }
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 15px) scale(0.95); }
+    }
+
+    /* Glass surfaces */
+    .glass {
+      background: var(--glass);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--glass-border);
+    }
+    .glass-strong {
+      background: var(--glass-strong);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .glass-input {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .glass-input:focus-within {
+      border-color: rgba(74,144,226,0.45);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px rgba(74,144,226,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+    }
+
+    .app-shell { position: relative; z-index: 1; }
+
+    /* Pills */
+    .pill-verified { color: #6BA8F0; border: 1px solid rgba(107,168,240,0.45); background: rgba(74,144,226,0.12); }
+    .pill-inferred { color: #C4A35A; border: 1px solid rgba(196,163,90,0.35); background: rgba(196,163,90,0.08); }
+    .pill-unavail { color: #8892A4; border: 1px solid rgba(136,146,164,0.3); background: rgba(136,146,164,0.06); }
+    .pill-stale { color: #6B7280; border: 1px solid rgba(107,114,128,0.3); background: rgba(107,114,128,0.06); }
+
+    /* Messages */
+    .msg-actions { opacity: 0; transition: opacity 180ms; }
+    .msg-row:hover .msg-actions { opacity: 1; }
+    .bubble-user {
+      background: linear-gradient(135deg, rgba(74,144,226,0.22), rgba(58,123,213,0.14));
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(74,144,226,0.28);
+      box-shadow: 0 4px 24px rgba(74,144,226,0.08);
+    }
+    .bubble-assistant {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    }
+    .avatar-glow {
+      background: linear-gradient(135deg, rgba(74,144,226,0.25), rgba(58,123,213,0.15));
+      border: 1px solid rgba(74,144,226,0.35);
+      box-shadow: 0 0 20px rgba(74,144,226,0.15);
+    }
+
+    .source-card {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all 180ms ease;
+    }
+    .source-card:hover {
+      border-color: rgba(74,144,226,0.35);
+      background: rgba(74,144,226,0.06);
+      transform: translateY(-1px);
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, #5B9FED, #3A7BD5);
+      box-shadow: 0 4px 16px var(--brand-glow);
+      transition: all 180ms ease;
+    }
+    .send-btn:not(:disabled):hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 24px var(--brand-glow);
+    }
+    .send-btn:disabled { opacity: 0.25; box-shadow: none; }
+
+    .example-chip {
+      background: rgba(255,255,255,0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 200ms ease;
+    }
+    .example-chip:hover {
+      border-color: rgba(74,144,226,0.4);
+      background: rgba(74,144,226,0.08);
+      color: #6BA8F0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(74,144,226,0.1);
+    }
+
+    .chat-item-active {
+      background: rgba(74,144,226,0.12) !important;
+      border: 1px solid rgba(74,144,226,0.25);
+    }
+
+    .typing-dot { animation: bounce 1.2s infinite; background: #6BA8F0; }
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }
+
+    #chatInput { field-sizing: content; max-height: 200px; }
+    .sidebar-scroll::-webkit-scrollbar, .chat-scroll::-webkit-scrollbar { width: 5px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb, .chat-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.12); border-radius: 4px;
+    }
+
+    .logo-img { height: 28px; width: auto; opacity: 0.95; }
+    .logo-img-lg { height: 36px; }
+
+    @media (max-width: 768px) {
+      #sidebar.open { transform: translateX(0); }
+      #sidebar { transform: translateX(-100%); }
+    }
+  </style>
+</head>
+<body class="antialiased h-screen overflow-hidden flex">
+
+  <!-- Ambient -->
+  <div class="ambient" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="app-shell flex w-full h-full">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed md:relative z-40 w-72 h-full glass-strong flex flex-col transition-transform duration-300 md:translate-x-0 border-r border-white/10">
+    <div class="p-5 border-b border-white/10">
+      <img src="assets/polarity-logo.png" alt="POLARITY iQ" class="logo-img mb-1"
+           onerror="this.onerror=null;this.src='assets/polarity-logo.svg'">
+      <p class="text-[10px] text-muted tracking-widest uppercase mt-2 mb-5">Family Office Intelligence</p>
+      <button id="newChatBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl glass text-sm font-medium hover:bg-white/5 transition-all border border-white/10 hover:border-brand/30 hover:shadow-lg hover:shadow-brand/5">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        New conversation
+      </button>
+    </div>
+
+    <div id="chatList" class="flex-1 overflow-y-auto sidebar-scroll px-3 py-3 space-y-1"></div>
+
+    <div id="statsFooter" class="p-4 m-3 rounded-xl glass text-xs text-muted font-mono space-y-1.5">
+      <div class="shimmer h-3 w-24 bg-white/5 rounded animate-pulse"></div>
+    </div>
+  </aside>
+
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden md:hidden"></div>
+
+  <!-- Main -->
+  <main class="flex-1 flex flex-col min-w-0 h-full">
+    <header class="flex items-center gap-3 px-5 py-3.5 glass border-b border-white/10 shrink-0">
+      <button id="menuBtn" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <span id="chatTitle" class="text-sm text-muted truncate font-medium">Family Office Intelligence</span>
+    </header>
+
+    <div id="messages" class="flex-1 overflow-y-auto chat-scroll px-4 md:px-10 py-8">
+      <div id="emptyState" class="max-w-2xl mx-auto text-center pt-12 pb-8">
+        <img src="assets/polarity-logo.png" alt="POLARITY iQ" class="logo-img-lg mx-auto mb-8 opacity-90"
+             onerror="this.onerror=null;this.src='assets/polarity-logo.svg'">
+        <h2 class="text-2xl font-semibold mb-2 tracking-tight">Intelligence on US family offices</h2>
+        <p class="text-muted text-sm mb-10 max-w-md mx-auto leading-relaxed">53 qualified offices — every answer grounded in sourced claims, verified or explicitly unavailable.</p>
+        <div class="grid sm:grid-cols-2 gap-3 text-left">
+          <button class="example-chip text-sm px-4 py-3.5 rounded-2xl text-muted" data-q="Which single-family offices are in Texas?">Which single-family offices are in Texas?</button>
+          <button class="example-chip text-sm px-4 py-3.5 rounded-2xl text-muted" data-q="Family offices investing in real estate">Family offices investing in real estate</button>
+          <button class="example-chip text-sm px-4 py-3.5 rounded-2xl text-muted" data-q="Who runs Zell Family Office?">Who runs Zell Family Office?</button>
+          <button class="example-chip text-sm px-4 py-3.5 rounded-2xl text-muted" data-q="Which offices made a recent investment?">Which offices made a recent investment?</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="shrink-0 px-4 py-5">
+      <div class="max-w-3xl mx-auto glass-input rounded-2xl relative flex items-end">
+        <textarea id="chatInput" rows="1" placeholder="Ask anything about family offices…"
+          class="flex-1 bg-transparent pl-5 pr-14 py-4 text-sm resize-none focus:outline-none placeholder:text-muted/60"></textarea>
+        <button id="sendBtn" disabled
+          class="send-btn absolute right-2.5 bottom-2.5 p-2.5 rounded-xl text-white disabled:cursor-not-allowed">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+        </button>
+      </div>
+      <p class="text-center text-[10px] text-muted/70 mt-3 tracking-wide">Enter to send · Shift+Enter for new line · Contact data gated for subscribers</p>
+    </div>
+  </main>
+  </div>
+
+  <!-- Firm drawer -->
+  <div id="firmDrawer" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-md" id="drawerBackdrop"></div>
+    <div class="absolute right-0 top-0 h-full w-full max-w-lg glass-strong border-l border-white/10 overflow-y-auto shadow-2xl">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h2 id="drawerFirmName" class="text-lg font-semibold"></h2>
+            <p class="text-xs text-muted font-mono mt-1" id="drawerFirmId"></p>
+          </div>
+          <button id="closeDrawer" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-muted hover:text-white transition-colors">&times;</button>
+        </div>
+        <div id="drawerClaims" class="space-y-3"></div>
+        <p class="text-xs text-muted mt-6 pt-4 border-t border-white/10">Contact data available to subscribers</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = () => window.API_BASE || '';
+    const STORAGE_KEY = 'polarity_chats_v1';
+
+    const STATUS = {
+      accepted: { label: 'VERIFIED', cls: 'pill-verified' },
+      inferred: { label: 'INFERRED', cls: 'pill-inferred' },
+      unavailable: { label: 'NOT AVAILABLE', cls: 'pill-unavail' },
+      stale: { label: 'STALE', cls: 'pill-stale' },
+    };
+
+    let chats = [], activeId = null, loading = false;
+    const $ = (id) => document.getElementById(id);
+    function uid() { return crypto.randomUUID(); }
+    function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function loadChats() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } }
+    function saveChats() { localStorage.setItem(STORAGE_KEY, JSON.stringify(chats)); }
+    function activeChat() { return chats.find(c => c.id === activeId); }
+
+    function newChat() {
+      const chat = { id: uid(), title: 'New chat', messages: [], createdAt: Date.now() };
+      chats.unshift(chat); activeId = chat.id; saveChats(); renderAll(); $('chatInput').focus();
+    }
+    function switchChat(id) { activeId = id; renderAll(); closeSidebarMobile(); }
+    function deleteChat(id, e) {
+      e?.stopPropagation();
+      chats = chats.filter(c => c.id !== id);
+      if (activeId === id) activeId = chats[0]?.id || null;
+      if (!activeId && !chats.length) newChat();
+      saveChats(); renderAll();
+    }
+
+    function statusPill(s) {
+      const p = STATUS[s] || { label: (s || 'unknown').toUpperCase(), cls: 'pill-unavail' };
+      return `<span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${p.cls}">${p.label}</span>`;
+    }
+    function fmtConf(c) { return c == null ? '—' : Number(c).toFixed(2); }
+    function fieldLabel(n) { return (n || '').replace(/_/g, ' '); }
+
+    function contactLines(claim) {
+      if (claim.field_name !== 'decision_maker') return '';
+      const t = (claim.claim_text || '').toLowerCase();
+      let email = '';
+      if (t.includes('verified work email'))
+        email = '<div class="font-mono text-xs mt-2"><span class="text-muted">Email</span> <span>●●●●●●●●</span> <span class="text-brand-light">VERIFIED</span> <span class="text-muted">(SMTP confirmed)</span></div>';
+      else if (t.includes('pattern-inferred'))
+        email = '<div class="font-mono text-xs mt-2"><span class="text-muted">Email</span> <span>●●●●●●●●</span> <span class="pill-inferred text-[10px] px-1.5 py-0 rounded">INFERRED</span> <span class="text-muted">(pattern, not confirmed)</span></div>';
+      else if (t.includes('no available work email') || t.includes('not available'))
+        email = '<div class="font-mono text-xs mt-2"><span class="text-muted">Email</span> <span class="text-muted">not available</span></div>';
+      const phone = t.includes('no direct phone') ? '<div class="font-mono text-xs"><span class="text-muted">Phone</span> <span class="text-muted">not available</span></div>' : '';
+      return email + phone;
+    }
+
+    function renderSources(data) {
+      if (!data?.claims?.length) return '';
+      const cited = new Set((data.answer?.citations || []).map(c => c.n));
+      const items = data.claims.map((c, i) => ({ c, n: i + 1 })).filter(x => cited.size === 0 || cited.has(x.n));
+      if (!items.length) return '';
+      const cards = items.map(({ c, n }) => `
+        <div class="source-card rounded-xl p-3.5 cursor-pointer mt-2" data-firm-id="${c.firm_id}">
+          <div class="flex items-start justify-between gap-2">
+            <div class="text-sm"><span class="font-mono text-brand-light text-xs">[${n}]</span> <span class="font-medium">${esc(c.firm_name)}</span> <span class="text-muted text-xs ml-1">${esc(fieldLabel(c.field_name))}</span></div>
+            ${statusPill(c.claim_status)}
+          </div>
+          <p class="text-xs text-muted mt-1.5 line-clamp-2">${esc(c.claim_text || c.field_value || 'not available')}</p>
+          <div class="font-mono text-[10px] text-muted mt-1.5 flex gap-3">
+            <span>conf ${fmtConf(c.confidence)}</span>
+            ${c.as_of ? `<span>as of ${esc(c.as_of)}</span>` : ''}
+            ${c.source_url ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener" class="text-brand-light hover:underline" onclick="event.stopPropagation()">source ↗</a>` : ''}
+          </div>${contactLines(c)}
+        </div>`).join('');
+      return `<div class="mt-4 pt-3 border-t border-white/10"><p class="text-[10px] uppercase tracking-widest text-muted mb-2">Sources</p>${cards}${data.claims.some(c => c.contact_gated) ? '<p class="text-[10px] text-muted mt-2">Contact data available to subscribers</p>' : ''}</div>`;
+    }
+
+    function renderAssistantContent(msg) {
+      const d = msg.data;
+      if (!d) return esc(msg.content);
+      if (d.answer?.refused) {
+        const diag = d.diagnostics || {};
+        return `<div class="border-l-2 border-brand/40 pl-4">
+          <p class="text-sm font-medium text-brand-light mb-1">Insufficient evidence</p>
+          <p class="text-sm mb-2">${esc(d.answer.reason || 'No answer could be grounded in retrieved sources.')}</p>
+          <p class="text-xs text-muted mb-3">${esc(d.answer.shortfall || 'Try rephrasing or ask about a specific firm in the dataset.')}</p>
+          <div class="font-mono text-[10px] text-muted">${diag.eligible_firms_after_filters ?? '—'} firms · ${diag.claims_returned ?? '—'} claims · sim ${diag.top_similarity ?? '—'}${d.answer.gate_triggered ? ` · gate ${esc(d.answer.gate_triggered)}` : ''}</div></div>`;
+      }
+      const isUnavail = /not available/i.test(d.answer?.text || '');
+      let html = `<p class="text-sm leading-relaxed ${isUnavail ? 'text-muted' : ''}">${esc(d.answer?.text || msg.content)}</p>`;
+      if ((!d.answer?.sufficient || isUnavail) && (d.answer?.shortfall || isUnavail))
+        html += `<p class="text-xs text-muted italic mt-2">${esc(d.answer?.shortfall || 'The dataset does not contain verified information for this question.')}</p>`;
+      const diag = d.diagnostics || {};
+      html += `<div class="font-mono text-[10px] text-muted mt-2">${diag.eligible_firms_after_filters ?? '—'} firms · ${diag.claims_returned ?? '—'} claims · sim ${diag.top_similarity ?? '—'}</div>`;
+      return html + renderSources(d);
+    }
+
+    function renderMessages() {
+      const chat = activeChat(), container = $('messages'), empty = $('emptyState');
+      if (!chat || !chat.messages.length) {
+        empty.classList.remove('hidden');
+        container.querySelectorAll('.msg-row').forEach(el => el.remove());
+        return;
+      }
+      empty.classList.add('hidden');
+      container.querySelectorAll('.msg-row').forEach(el => el.remove());
+
+      chat.messages.forEach(msg => {
+        const row = document.createElement('div');
+        row.className = 'msg-row max-w-3xl mx-auto mb-7 group';
+        row.dataset.id = msg.id;
+
+        if (msg.role === 'user') {
+          if (msg.editing) {
+            row.innerHTML = `<div class="flex justify-end"><div class="w-full max-w-xl glass-input rounded-2xl p-1">
+              <textarea class="edit-area w-full bg-transparent px-4 py-3 text-sm resize-none focus:outline-none" rows="3">${esc(msg.content)}</textarea>
+              <div class="flex gap-2 justify-end px-3 pb-2">
+                <button class="cancel-edit text-xs text-muted px-3 py-1.5 rounded-lg hover:bg-white/5">Cancel</button>
+                <button class="save-edit text-xs send-btn px-4 py-1.5 rounded-lg font-medium">Save & resend</button>
+              </div></div></div>`;
+          } else {
+            row.innerHTML = `<div class="flex justify-end items-start gap-2">
+              <div class="msg-actions flex gap-0.5 pt-2">
+                <button class="edit-msg p-2 rounded-lg hover:bg-white/5 text-muted" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                <button class="del-msg p-2 rounded-lg hover:bg-white/5 text-muted" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
+              </div>
+              <div class="bubble-user rounded-2xl rounded-tr-lg px-5 py-3.5 max-w-xl text-sm leading-relaxed">${esc(msg.content)}</div>
+            </div>`;
+          }
+        } else if (msg.role === 'assistant') {
+          row.innerHTML = `<div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl avatar-glow flex items-center justify-center shrink-0">
+              <img src="assets/polarity-logo.png" alt="" class="h-4 w-auto opacity-80" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+              <span class="text-brand-light text-[10px] font-bold hidden">iQ</span>
+            </div>
+            <div class="flex-1 min-w-0 bubble-assistant rounded-2xl rounded-tl-lg px-5 py-4">
+              <div class="assistant-body">${renderAssistantContent(msg)}</div>
+              <div class="msg-actions flex gap-1 mt-3 pt-2 border-t border-white/5">
+                <button class="copy-msg text-xs text-muted px-2.5 py-1 rounded-lg hover:bg-white/5">Copy</button>
+                <button class="del-msg text-xs text-muted px-2.5 py-1 rounded-lg hover:bg-white/5">Delete</button>
+              </div>
+            </div></div>`;
+        } else if (msg.role === 'typing') {
+          row.innerHTML = `<div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-xl avatar-glow flex items-center justify-center shrink-0"><span class="text-brand-light text-[10px] font-bold">iQ</span></div>
+            <div class="bubble-assistant rounded-2xl px-5 py-4 flex gap-1.5 items-center">
+              <span class="typing-dot w-2 h-2 rounded-full"></span>
+              <span class="typing-dot w-2 h-2 rounded-full"></span>
+              <span class="typing-dot w-2 h-2 rounded-full"></span>
+            </div></div>`;
+        }
+        container.appendChild(row);
+        bindMessageActions(row, msg);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function bindMessageActions(row, msg) {
+      row.querySelector('.edit-msg')?.addEventListener('click', () => startEdit(msg.id));
+      row.querySelector('.del-msg')?.addEventListener('click', () => deleteMessage(msg.id));
+      row.querySelector('.cancel-edit')?.addEventListener('click', () => cancelEdit(msg.id));
+      row.querySelector('.save-edit')?.addEventListener('click', () => { saveEdit(msg.id, row.querySelector('.edit-area').value.trim()); });
+      row.querySelector('.copy-msg')?.addEventListener('click', () => navigator.clipboard.writeText(msg.data?.answer?.text || msg.content || ''));
+      row.querySelectorAll('.source-card').forEach(el => el.addEventListener('click', () => openFirmDrawer(el.dataset.firmId)));
+    }
+
+    function startEdit(id) { const m = activeChat().messages.find(x => x.id === id); if (m) { m.editing = true; saveChats(); renderMessages(); } }
+    function cancelEdit(id) { const m = activeChat().messages.find(x => x.id === id); if (m) { m.editing = false; saveChats(); renderMessages(); } }
+    function saveEdit(id, text) {
+      if (!text) return;
+      const chat = activeChat(), idx = chat.messages.findIndex(m => m.id === id);
+      if (idx < 0) return;
+      chat.messages[idx].content = text; chat.messages[idx].editing = false;
+      chat.messages.splice(idx + 1); chat.title = text.slice(0, 48);
+      saveChats(); renderMessages(); sendQuery(text, false);
+    }
+    function deleteMessage(id) {
+      const chat = activeChat(), idx = chat.messages.findIndex(m => m.id === id);
+      if (idx < 0) return;
+      const msg = chat.messages[idx];
+      chat.messages.splice(idx, 1);
+      if (msg.role === 'user' && chat.messages[idx]?.role === 'assistant') chat.messages.splice(idx, 1);
+      if (!chat.messages.length) chat.title = 'New chat';
+      saveChats(); renderMessages();
+    }
+
+    function renderChatList() {
+      $('chatList').innerHTML = chats.map(c => `
+        <div class="chat-item group flex items-center gap-1 rounded-xl ${c.id === activeId ? 'chat-item-active' : 'hover:bg-white/5'}">
+          <button class="flex-1 text-left px-3 py-2.5 text-sm truncate ${c.id === activeId ? 'text-white' : 'text-muted'}" data-id="${c.id}">${esc(c.title)}</button>
+          <button class="del-chat opacity-0 group-hover:opacity-100 p-2 mr-1 rounded-lg text-muted hover:text-white hover:bg-white/5" data-id="${c.id}" title="Delete">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>`).join('');
+      $('chatList').querySelectorAll('button[data-id]').forEach(btn => {
+        btn.addEventListener('click', btn.classList.contains('del-chat') ? (e) => deleteChat(btn.dataset.id, e) : () => switchChat(btn.dataset.id));
+      });
+    }
+
+    function renderAll() {
+      renderChatList(); renderMessages();
+      $('chatTitle').textContent = activeChat()?.title || 'Family Office Intelligence';
+    }
+
+    async function sendQuery(text, addUserMsg = true) {
+      if (loading || !text.trim()) return;
+      const chat = activeChat(); if (!chat) return;
+      if (addUserMsg) { chat.messages.push({ id: uid(), role: 'user', content: text }); if (chat.title === 'New chat') chat.title = text.slice(0, 48); }
+      chat.messages.push({ id: uid(), role: 'typing', content: '' });
+      loading = true; $('sendBtn').disabled = true; saveChats(); renderMessages();
+      try {
+        const r = await fetch(`${API()}/api/search`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: text }) });
+        const data = await r.json();
+        chat.messages = chat.messages.filter(m => m.role !== 'typing');
+        chat.messages.push({ id: uid(), role: 'assistant', content: data.answer?.text || data.answer?.reason || '', data });
+      } catch {
+        chat.messages = chat.messages.filter(m => m.role !== 'typing');
+        chat.messages.push({ id: uid(), role: 'assistant', content: 'Request failed. Check that the API is running and CORS is configured.', data: null });
+      }
+      loading = false; $('sendBtn').disabled = !$('chatInput').value.trim(); saveChats(); renderMessages();
+    }
+
+    async function loadStats() {
+      try {
+        const d = await (await fetch(`${API()}/api/stats`)).json();
+        $('statsFooter').innerHTML = `<div class="text-brand-light font-semibold">${d.total_firms} firms indexed</div><div>${d.single_family} SFO · ${d.multi_family} MFO · ${d.states_covered} states</div>`;
+      } catch { $('statsFooter').innerHTML = '<div class="text-muted">API offline</div>'; }
+    }
+
+    async function openFirmDrawer(firmId) {
+      try {
+        const d = await (await fetch(`${API()}/api/firm/${firmId}`)).json();
+        $('drawerFirmName').textContent = d.firm_name || 'Firm';
+        $('drawerFirmId').textContent = `firm_id ${d.firm_id}`;
+        $('drawerClaims').innerHTML = (d.claims || []).map(c => `
+          <div class="source-card rounded-xl p-4 text-sm">
+            <div class="flex justify-between items-center mb-1"><span class="font-medium capitalize">${esc(fieldLabel(c.field_name))}</span>${statusPill(c.claim_status)}</div>
+            <p class="text-muted mb-2 text-xs leading-relaxed">${esc(c.claim_text || c.field_value || 'not available')}</p>${contactLines(c)}
+            <div class="font-mono text-[10px] text-muted flex gap-3"><span>conf ${fmtConf(c.confidence)}</span>${c.as_of ? `<span>as of ${esc(c.as_of)}</span>` : ''}${c.source_url ? `<a href="${esc(c.source_url)}" target="_blank" class="text-brand-light">source ↗</a>` : ''}</div>
+          </div>`).join('');
+        $('firmDrawer').classList.remove('hidden');
+      } catch {}
+    }
+
+    function closeSidebarMobile() { $('sidebar').classList.remove('open'); $('sidebarOverlay').classList.add('hidden'); }
+
+    chats = loadChats();
+    if (!chats.length) newChat(); else activeId = chats[0].id;
+
+    $('newChatBtn').addEventListener('click', newChat);
+    $('menuBtn').addEventListener('click', () => { $('sidebar').classList.add('open'); $('sidebarOverlay').classList.remove('hidden'); });
+    $('sidebarOverlay').addEventListener('click', closeSidebarMobile);
+    $('closeDrawer').addEventListener('click', () => $('firmDrawer').classList.add('hidden'));
+    $('drawerBackdrop').addEventListener('click', () => $('firmDrawer').classList.add('hidden'));
+
+    const input = $('chatInput');
+    input.addEventListener('input', () => { $('sendBtn').disabled = loading || !input.value.trim(); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const t = input.value.trim(); if (t && !loading) { input.value = ''; $('sendBtn').disabled = true; sendQuery(t); } }
+    });
+    $('sendBtn').addEventListener('click', () => { const t = input.value.trim(); if (t && !loading) { input.value = ''; $('sendBtn').disabled = true; sendQuery(t); } });
+    document.querySelectorAll('.example-chip').forEach(btn => btn.addEventListener('click', () => { sendQuery(btn.dataset.q); input.value = ''; }));
+
+    renderAll(); loadStats();
+  </script>
+</body>
+</html>
