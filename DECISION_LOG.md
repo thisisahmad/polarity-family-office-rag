@@ -578,9 +578,21 @@ Prepared Dockerfile for HF (uid 1000, port 7860, README front-matter). Then
 found HF moved Docker + Gradio Spaces behind PRO — Static only is free, and
 Static can't run FastAPI. So HF Docker is not a free option anymore (July 2026).
 
-Kept the HF-ready Dockerfile anyway. config.js uses relative API paths.
-`.dockerignore` excludes raw JSON (~53MB) and CSVs.
+Deleted Dockerfile, .dockerignore, fly.toml. No container to debug on a deadline.
 
-**Next:** Render free tier — no card, sleeps after 15 min (cold start ~40s).
-Python runtime (no Docker). External cron pings `/health` every 10 min to
-reduce spin-down. Same single-process deploy; `$PORT` from Render env.
+## 2026-07-28 15:30 PKT — Deployed on Render (Python, free tier)
+
+Went with Render free tier. No card. Tradeoff: spins down after 15 min idle,
+cold start ~40s on first hit. External cron GETs `/health` every 10 min — no DB,
+no OpenAI — to keep it warm for reviewers.
+
+Deploy shape:
+- Python 3, `pip install -r requirements.txt`
+- Start: `uvicorn src.rag.main:app --host 0.0.0.0 --port $PORT`
+- Same process serves UI (`src/rag/static/`) and API — no split, no CORS
+- `config.js` relative paths only (`/api/search`)
+- Render env: DATABASE_URL, OPENAI_API_KEY, ANSWER_MODEL
+- SERPER/CLASSIFY local only — not on the request path
+
+requirements.txt trimmed to web deps (fastapi, uvicorn, psycopg2-binary,
+python-dotenv, requests). Live URL in submission.
