@@ -213,7 +213,7 @@ def main():
     print(f"{len(rows)} qualified firms\n")
 
     out = [row_out(r, i) for i, r in enumerate(rows, 1)]
-    path = f"{OUT_DIR}/family_office_dataset_1.csv"
+    path = f"{OUT_DIR}/family_office_dataset.csv"
     with open(path, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(out[0].keys()))
         w.writeheader()

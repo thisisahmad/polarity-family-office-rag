@@ -115,6 +115,13 @@ Blanks beat guesses — `NOT AVAILABLE` is a first-class outcome.
 One **claim per field per firm** (~8 chunks/firm), including **negative claims** ("AUM is NOT AVAILABLE — do not estimate").  
 Embeddings: `text-embedding-3-small` · Answers: `gpt-5.1`
 
+### 5 · Validation
+**Layer 1 (dataset):** random sample hand-checked against `classification_source_url`.  
+8/53 records verified 2026-07-28 — 100% firm identity precision, 4 field errors found and corrected.  
+Details: [`docs/validation_layer1.md`](docs/validation_layer1.md)
+
+**Layer 2 (RAG):** adversarial query suite — `python src/rag/query_test.py --suite`
+
 ---
 
 ## Quick start (local)
