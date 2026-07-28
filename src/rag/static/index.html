@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>POLARITY iQ — Family Office Intelligence</title>
+  <link rel="icon" type="image/png" href="assets/polarity-logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -281,6 +282,29 @@
     .logo-img { height: 28px; width: auto; opacity: 0.95; }
     .logo-img-lg { height: 36px; }
 
+    .sidebar-top {
+      min-height: 44px;
+    }
+    .sidebar-logo-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .sidebar-logo-icon img {
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 22px;
+      width: auto;
+      max-width: none;
+    }
+
     @media (max-width: 768px) {
       #sidebar.open { transform: translateX(0); }
       #sidebar { transform: translateX(-100%); }
@@ -300,15 +324,19 @@
 
   <!-- Sidebar -->
   <aside id="sidebar" class="fixed md:relative z-40 w-72 h-full glass-strong flex flex-col transition-transform duration-300 md:translate-x-0 border-r border-white/10">
-    <div class="p-5 border-b border-white/10">
-      <img src="assets/polarity-logo.png" alt="POLARITY iQ" class="logo-img mb-1"
-           onerror="this.onerror=null;this.src='assets/polarity-logo.svg'">
-      <p class="text-[10px] text-muted tracking-widest uppercase mt-2 mb-5">Family Office Intelligence</p>
-      <button id="newChatBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl glass text-sm font-medium hover:bg-white/5 transition-all border border-white/10 hover:border-brand/30 hover:shadow-lg hover:shadow-brand/5">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-        New conversation
+    <div class="sidebar-top flex items-center gap-2.5 px-3 py-2.5 border-b border-white/10">
+      <div class="sidebar-logo-icon" aria-hidden="true">
+        <img src="assets/polarity-logo.png" alt="">
+      </div>
+      <span class="text-[13px] font-semibold tracking-wide truncate flex-1 min-w-0">POLARITY iQ</span>
+      <div class="w-px h-3.5 bg-white/20 shrink-0" aria-hidden="true"></div>
+      <button id="newChatBtn" type="button"
+        class="p-1.5 rounded-md text-muted hover:text-white hover:bg-white/5 transition-colors shrink-0"
+        title="New conversation">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       </button>
     </div>
+    <p class="px-4 py-2 text-[10px] text-muted tracking-widest uppercase border-b border-white/10">Family Office Intelligence</p>
 
     <div id="chatList" class="flex-1 overflow-y-auto sidebar-scroll px-3 py-3 space-y-1"></div>
 
@@ -325,6 +353,7 @@
       <button id="menuBtn" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
       </button>
+      <img src="assets/polarity-logo.png" alt="POLARITY iQ" class="hidden sm:block h-[18px] w-auto opacity-90 shrink-0">
       <span id="chatTitle" class="text-sm text-muted truncate font-medium">Family Office Intelligence</span>
     </header>
 
