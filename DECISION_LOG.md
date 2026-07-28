@@ -582,5 +582,5 @@ Kept the HF-ready Dockerfile anyway. config.js uses relative API paths.
 `.dockerignore` excludes raw JSON (~53MB) and CSVs.
 
 **Next:** Render free tier — no card, sleeps after 15 min (cold start ~40s).
-Same single-process deploy, port from `$PORT` env var. Acceptable tradeoff vs
-paying Fly/HF PRO with hours left.
+Python runtime (no Docker). External cron pings `/health` every 10 min to
+reduce spin-down. Same single-process deploy; `$PORT` from Render env.

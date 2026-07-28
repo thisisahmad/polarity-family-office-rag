@@ -1,5 +1,10 @@
-psycopg2-binary>=2.9
-python-dotenv>=1.0
-requests>=2.31
-fastapi>=0.110
-uvicorn[standard]>=0.27
+# Web service (Render) — keep minimal for fast free-tier builds
+fastapi
+uvicorn[standard]
+psycopg2-binary
+python-dotenv
+requests
+
+# Offline-only deps (discovery/enrich CLI) — NOT imported by src.rag.main:
+#   dnspython  — SMTP MX probes in enrich.py
+#   serper     — via requests + SERPER_API_KEY in discovery scripts
