@@ -1,3 +1,13 @@
+---
+title: Family Office Intelligence
+emoji: 🏛️
+colorFrom: gray
+colorTo: yellow
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Family Office Intelligence Pipeline — Stage 1
 
 Build a defensible dataset of US single-family offices (SFOs) by separating **discovery** (finding candidates) from **classification** (proving what each firm is).

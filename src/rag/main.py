@@ -4,6 +4,7 @@ API LAYER — thin orchestration: retrieval → grounding → JSON.
 import os
 import re
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -17,7 +18,7 @@ from . import retrieval, grounding
 
 app = FastAPI(title="Polarity Family Office Intelligence")
 
-_cors = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173")
+_cors = os.getenv("CORS_ORIGINS", "*")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[o.strip() for o in _cors.split(",") if o.strip()],
@@ -26,7 +27,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+STATIC_DIR = Path(__file__).parent / "static"
 EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
 CONTACT_FIELDS = {"decision_maker", "email", "phone", "contact"}
 
@@ -71,21 +72,21 @@ def health():
 
 @app.get("/")
 def index():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.get("/config.js")
 def config_js():
     return FileResponse(
-        os.path.join(STATIC_DIR, "config.js"),
+        STATIC_DIR / "config.js",
         media_type="application/javascript",
     )
 
 
 @app.get("/assets/{filename}")
 def static_assets(filename: str):
-    path = os.path.join(STATIC_DIR, "assets", filename)
-    if not os.path.isfile(path):
+    path = STATIC_DIR / "assets" / filename
+    if not path.is_file():
         raise HTTPException(status_code=404)
     media = "image/svg+xml" if filename.endswith(".svg") else "image/png"
     return FileResponse(path, media_type=media)

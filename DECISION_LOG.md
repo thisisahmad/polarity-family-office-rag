@@ -569,3 +569,18 @@ can break. With ~5 hours left that's the wrong trade.
 
 React wouldn't make it look better — type scale, colour, spacing do that, and
 this is a single search page. Layer separation is in the code, not the hosting.
+
+## 2026-07-28 15:00 PKT — Dropped Fly.io, tried Hugging Face Spaces
+
+Fly.io needs a card and $10 minimum. Looked at HF Spaces as free alternative.
+
+Prepared Dockerfile for HF (uid 1000, port 7860, README front-matter). Then
+found HF moved Docker + Gradio Spaces behind PRO — Static only is free, and
+Static can't run FastAPI. So HF Docker is not a free option anymore (July 2026).
+
+Kept the HF-ready Dockerfile anyway. config.js uses relative API paths.
+`.dockerignore` excludes raw JSON (~53MB) and CSVs.
+
+**Next:** Render free tier — no card, sleeps after 15 min (cold start ~40s).
+Same single-process deploy, port from `$PORT` env var. Acceptable tradeoff vs
+paying Fly/HF PRO with hours left.

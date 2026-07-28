@@ -107,16 +107,123 @@
       box-shadow: 0 4px 24px rgba(74,144,226,0.08);
     }
     .bubble-assistant {
-      background: var(--glass);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
     }
     .avatar-glow {
-      background: linear-gradient(135deg, rgba(74,144,226,0.25), rgba(58,123,213,0.15));
-      border: 1px solid rgba(74,144,226,0.35);
-      box-shadow: 0 0 20px rgba(74,144,226,0.15);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 4px 16px rgba(74,144,226,0.12);
     }
+    .avatar-glow img { height: 22px; width: auto; object-fit: contain; }
+
+    /* Answer typography */
+    .answer-prose { max-width: 100%; }
+    .answer-prose p {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      margin: 0 0 0.875rem;
+      color: #E8ECF2;
+      letter-spacing: 0.01em;
+    }
+    .answer-prose p:last-child { margin-bottom: 0; }
+    .answer-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .answer-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      color: #E8ECF2;
+    }
+    .answer-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.65em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #6BA8F0;
+      box-shadow: 0 0 8px rgba(107,168,240,0.5);
+    }
+    .firm-name {
+      color: #6BA8F0;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+    .answer-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6875rem;
+      color: #8892A4;
+    }
+    .answer-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .answer-meta .meta-val { color: #B8C0CC; }
+    .sources-header {
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8892A4;
+      margin-bottom: 0.75rem;
+    }
+    .sources-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.625rem;
+    }
+    @media (min-width: 640px) {
+      .sources-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .assistant-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .assistant-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #EEF1F6;
+    }
+    .assistant-badge {
+      font-size: 0.625rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #6BA8F0;
+      background: rgba(74,144,226,0.12);
+      border: 1px solid rgba(74,144,226,0.25);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+    }
+    .msg-row { width: 100%; }
+    .msg-thread { max-width: 52rem; margin: 0 auto; width: 100%; }
+    .refusal-block {
+      border-left: 3px solid rgba(74,144,226,0.5);
+      padding-left: 1rem;
+    }
+    .refusal-block p { margin: 0 0 0.5rem; line-height: 1.65; font-size: 0.9375rem; }
+    .refusal-block p:last-child { margin-bottom: 0; }
 
     .source-card {
       background: rgba(255,255,255,0.03);
@@ -309,6 +416,44 @@
     function fmtConf(c) { return c == null ? '—' : Number(c).toFixed(2); }
     function fieldLabel(n) { return (n || '').replace(/_/g, ' '); }
 
+    function highlightFirms(text) {
+      return esc(text).replace(
+        /([A-Z][A-Za-z0-9&.'\-\s]{2,40}?(?:Family Office|Family Offices))/g,
+        '<strong class="firm-name">$1</strong>'
+      );
+    }
+
+    function formatAnswerBody(text, sentences) {
+      if (sentences?.length) {
+        return `<ul class="answer-list">${sentences.map(s =>
+          `<li>${highlightFirms(s.text || '')}</li>`
+        ).join('')}</ul>`;
+      }
+      if (!text) return '';
+      const parts = text.split(/(?<=[.!?])\s+(?=[A-Z])/).filter(Boolean);
+      const firmCount = (text.match(/Family Office/gi) || []).length;
+      if (parts.length >= 2 && firmCount >= 2) {
+        return `<ul class="answer-list">${parts.map(p =>
+          `<li>${highlightFirms(p.trim())}</li>`
+        ).join('')}</ul>`;
+      }
+      if (parts.length >= 2) {
+        return `<div class="answer-prose">${parts.map(p =>
+          `<p>${highlightFirms(p.trim())}</p>`
+        ).join('')}</div>`;
+      }
+      return `<div class="answer-prose"><p>${highlightFirms(text)}</p></div>`;
+    }
+
+    function renderMetaBar(diag, extra) {
+      return `<div class="answer-meta">
+        <span><span class="meta-val">${diag.eligible_firms_after_filters ?? '—'}</span> firms eligible</span>
+        <span><span class="meta-val">${diag.claims_returned ?? '—'}</span> claims retrieved</span>
+        <span>similarity <span class="meta-val">${diag.top_similarity ?? '—'}</span></span>
+        ${extra || ''}
+      </div>`;
+    }
+
     function contactLines(claim) {
       if (claim.field_name !== 'decision_maker') return '';
       const t = (claim.claim_text || '').toLowerCase();
@@ -329,38 +474,53 @@
       const items = data.claims.map((c, i) => ({ c, n: i + 1 })).filter(x => cited.size === 0 || cited.has(x.n));
       if (!items.length) return '';
       const cards = items.map(({ c, n }) => `
-        <div class="source-card rounded-xl p-3.5 cursor-pointer mt-2" data-firm-id="${c.firm_id}">
-          <div class="flex items-start justify-between gap-2">
-            <div class="text-sm"><span class="font-mono text-brand-light text-xs">[${n}]</span> <span class="font-medium">${esc(c.firm_name)}</span> <span class="text-muted text-xs ml-1">${esc(fieldLabel(c.field_name))}</span></div>
-            ${statusPill(c.claim_status)}
+        <div class="source-card rounded-xl p-4 cursor-pointer" data-firm-id="${c.firm_id}">
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="font-mono text-brand-light text-[10px]">[${n}]</span>
+                ${statusPill(c.claim_status)}
+              </div>
+              <p class="font-medium text-sm leading-snug truncate">${esc(c.firm_name)}</p>
+              <p class="text-[11px] text-muted capitalize mt-0.5">${esc(fieldLabel(c.field_name))}</p>
+            </div>
           </div>
-          <p class="text-xs text-muted mt-1.5 line-clamp-2">${esc(c.claim_text || c.field_value || 'not available')}</p>
-          <div class="font-mono text-[10px] text-muted mt-1.5 flex gap-3">
+          <p class="text-xs text-muted leading-relaxed line-clamp-3">${esc(c.claim_text || c.field_value || 'not available')}</p>
+          <div class="font-mono text-[10px] text-muted mt-2.5 flex flex-wrap gap-x-3 gap-y-1">
             <span>conf ${fmtConf(c.confidence)}</span>
-            ${c.as_of ? `<span>as of ${esc(c.as_of)}</span>` : ''}
+            ${c.as_of ? `<span>${esc(c.as_of)}</span>` : ''}
             ${c.source_url ? `<a href="${esc(c.source_url)}" target="_blank" rel="noopener" class="text-brand-light hover:underline" onclick="event.stopPropagation()">source ↗</a>` : ''}
           </div>${contactLines(c)}
         </div>`).join('');
-      return `<div class="mt-4 pt-3 border-t border-white/10"><p class="text-[10px] uppercase tracking-widest text-muted mb-2">Sources</p>${cards}${data.claims.some(c => c.contact_gated) ? '<p class="text-[10px] text-muted mt-2">Contact data available to subscribers</p>' : ''}</div>`;
+      return `<div class="mt-5 pt-4 border-t border-white/10">
+        <p class="sources-header">Supporting sources</p>
+        <div class="sources-grid">${cards}</div>
+        ${data.claims.some(c => c.contact_gated) ? '<p class="text-[10px] text-muted mt-3">Contact data available to subscribers</p>' : ''}
+      </div>`;
     }
 
     function renderAssistantContent(msg) {
       const d = msg.data;
-      if (!d) return esc(msg.content);
-      if (d.answer?.refused) {
-        const diag = d.diagnostics || {};
-        return `<div class="border-l-2 border-brand/40 pl-4">
-          <p class="text-sm font-medium text-brand-light mb-1">Insufficient evidence</p>
-          <p class="text-sm mb-2">${esc(d.answer.reason || 'No answer could be grounded in retrieved sources.')}</p>
-          <p class="text-xs text-muted mb-3">${esc(d.answer.shortfall || 'Try rephrasing or ask about a specific firm in the dataset.')}</p>
-          <div class="font-mono text-[10px] text-muted">${diag.eligible_firms_after_filters ?? '—'} firms · ${diag.claims_returned ?? '—'} claims · sim ${diag.top_similarity ?? '—'}${d.answer.gate_triggered ? ` · gate ${esc(d.answer.gate_triggered)}` : ''}</div></div>`;
-      }
-      const isUnavail = /not available/i.test(d.answer?.text || '');
-      let html = `<p class="text-sm leading-relaxed ${isUnavail ? 'text-muted' : ''}">${esc(d.answer?.text || msg.content)}</p>`;
-      if ((!d.answer?.sufficient || isUnavail) && (d.answer?.shortfall || isUnavail))
-        html += `<p class="text-xs text-muted italic mt-2">${esc(d.answer?.shortfall || 'The dataset does not contain verified information for this question.')}</p>`;
+      if (!d) return `<div class="answer-prose"><p>${esc(msg.content)}</p></div>`;
       const diag = d.diagnostics || {};
-      html += `<div class="font-mono text-[10px] text-muted mt-2">${diag.eligible_firms_after_filters ?? '—'} firms · ${diag.claims_returned ?? '—'} claims · sim ${diag.top_similarity ?? '—'}</div>`;
+
+      if (d.answer?.refused) {
+        return `<div class="refusal-block">
+          <p class="font-medium text-brand-light">Insufficient evidence</p>
+          <p>${esc(d.answer.reason || 'No answer could be grounded in retrieved sources.')}</p>
+          <p class="text-sm text-muted">${esc(d.answer.shortfall || 'Try rephrasing or ask about a specific firm in the dataset.')}</p>
+          ${renderMetaBar(diag, d.answer.gate_triggered ? `<span>gate <span class="meta-val">${esc(d.answer.gate_triggered)}</span></span>` : '')}
+        </div>`;
+      }
+
+      const isUnavail = /not available/i.test(d.answer?.text || '');
+      let html = formatAnswerBody(d.answer?.text || msg.content, d.answer?.sentences);
+
+      if ((!d.answer?.sufficient || isUnavail) && (d.answer?.shortfall || isUnavail)) {
+        html += `<p class="text-sm text-muted italic mt-3 leading-relaxed">${esc(d.answer?.shortfall || 'The dataset does not contain verified information for this question.')}</p>`;
+      }
+
+      html += renderMetaBar(diag);
       return html + renderSources(d);
     }
 
@@ -376,7 +536,7 @@
 
       chat.messages.forEach(msg => {
         const row = document.createElement('div');
-        row.className = 'msg-row max-w-3xl mx-auto mb-7 group';
+        row.className = 'msg-row mb-8 group px-2 md:px-0';
         row.dataset.id = msg.id;
 
         if (msg.role === 'user') {
@@ -388,31 +548,38 @@
                 <button class="save-edit text-xs send-btn px-4 py-1.5 rounded-lg font-medium">Save & resend</button>
               </div></div></div>`;
           } else {
-            row.innerHTML = `<div class="flex justify-end items-start gap-2">
-              <div class="msg-actions flex gap-0.5 pt-2">
+            row.innerHTML = `<div class="msg-thread flex justify-end items-start gap-3">
+              <div class="msg-actions flex gap-0.5 pt-3 order-1">
                 <button class="edit-msg p-2 rounded-lg hover:bg-white/5 text-muted" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
                 <button class="del-msg p-2 rounded-lg hover:bg-white/5 text-muted" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>
               </div>
-              <div class="bubble-user rounded-2xl rounded-tr-lg px-5 py-3.5 max-w-xl text-sm leading-relaxed">${esc(msg.content)}</div>
+              <div class="bubble-user rounded-2xl rounded-tr-md px-5 py-3.5 max-w-[85%] md:max-w-xl text-[0.9375rem] leading-relaxed order-2">${esc(msg.content)}</div>
             </div>`;
           }
         } else if (msg.role === 'assistant') {
-          row.innerHTML = `<div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-xl avatar-glow flex items-center justify-center shrink-0">
-              <img src="assets/polarity-logo.png" alt="" class="h-4 w-auto opacity-80" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-              <span class="text-brand-light text-[10px] font-bold hidden">iQ</span>
+          row.innerHTML = `<div class="msg-thread flex items-start gap-4">
+            <div class="w-9 h-9 rounded-xl avatar-glow flex items-center justify-center shrink-0 overflow-hidden">
+              <img src="assets/polarity-logo.png" alt="Polarity iQ" onerror="this.onerror=null;this.src='assets/polarity-logo.svg'">
             </div>
-            <div class="flex-1 min-w-0 bubble-assistant rounded-2xl rounded-tl-lg px-5 py-4">
-              <div class="assistant-body">${renderAssistantContent(msg)}</div>
-              <div class="msg-actions flex gap-1 mt-3 pt-2 border-t border-white/5">
-                <button class="copy-msg text-xs text-muted px-2.5 py-1 rounded-lg hover:bg-white/5">Copy</button>
-                <button class="del-msg text-xs text-muted px-2.5 py-1 rounded-lg hover:bg-white/5">Delete</button>
+            <div class="flex-1 min-w-0">
+              <div class="assistant-header">
+                <span class="assistant-label">Polarity iQ</span>
+                <span class="assistant-badge">Grounded</span>
+              </div>
+              <div class="bubble-assistant rounded-2xl rounded-tl-md px-5 py-5">
+                <div class="assistant-body">${renderAssistantContent(msg)}</div>
+                <div class="msg-actions flex gap-1 mt-4 pt-3 border-t border-white/5">
+                  <button class="copy-msg text-xs text-muted px-3 py-1.5 rounded-lg hover:bg-white/5">Copy</button>
+                  <button class="del-msg text-xs text-muted px-3 py-1.5 rounded-lg hover:bg-white/5">Delete</button>
+                </div>
               </div>
             </div></div>`;
         } else if (msg.role === 'typing') {
-          row.innerHTML = `<div class="flex items-start gap-3">
-            <div class="w-8 h-8 rounded-xl avatar-glow flex items-center justify-center shrink-0"><span class="text-brand-light text-[10px] font-bold">iQ</span></div>
-            <div class="bubble-assistant rounded-2xl px-5 py-4 flex gap-1.5 items-center">
+          row.innerHTML = `<div class="msg-thread flex items-start gap-4">
+            <div class="w-9 h-9 rounded-xl avatar-glow flex items-center justify-center shrink-0">
+              <img src="assets/polarity-logo.png" alt="" class="h-[18px]" onerror="this.style.display='none'">
+            </div>
+            <div class="bubble-assistant rounded-2xl rounded-tl-md px-5 py-4 flex gap-1.5 items-center min-h-[52px]">
               <span class="typing-dot w-2 h-2 rounded-full"></span>
               <span class="typing-dot w-2 h-2 rounded-full"></span>
               <span class="typing-dot w-2 h-2 rounded-full"></span>
