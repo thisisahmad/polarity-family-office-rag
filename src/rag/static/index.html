@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>POLARITY iQ — Family Office Intelligence</title>
-  <link rel="icon" type="image/png" href="assets/polarity-logo.png">
+  <link rel="icon" type="image/png" href="assets/polarity-icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -285,24 +285,11 @@
     .sidebar-top {
       min-height: 44px;
     }
-    .sidebar-logo-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      overflow: hidden;
-      position: relative;
+    .sidebar-iq-icon {
+      height: 24px;
+      width: 24px;
+      object-fit: contain;
       flex-shrink: 0;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    .sidebar-logo-icon img {
-      position: absolute;
-      right: -1px;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 22px;
-      width: auto;
-      max-width: none;
     }
 
     @media (max-width: 768px) {
@@ -325,10 +312,8 @@
   <!-- Sidebar -->
   <aside id="sidebar" class="fixed md:relative z-40 w-72 h-full glass-strong flex flex-col transition-transform duration-300 md:translate-x-0 border-r border-white/10">
     <div class="sidebar-top flex items-center gap-2.5 px-3 py-2.5 border-b border-white/10">
-      <div class="sidebar-logo-icon" aria-hidden="true">
-        <img src="assets/polarity-logo.png" alt="">
-      </div>
-      <span class="text-[13px] font-semibold tracking-wide truncate flex-1 min-w-0">POLARITY iQ</span>
+      <img src="assets/polarity-icon.png" alt="Polarity iQ" class="sidebar-iq-icon">
+      <div class="flex-1"></div>
       <div class="w-px h-3.5 bg-white/20 shrink-0" aria-hidden="true"></div>
       <button id="newChatBtn" type="button"
         class="p-1.5 rounded-md text-muted hover:text-white hover:bg-white/5 transition-colors shrink-0"
@@ -353,7 +338,7 @@
       <button id="menuBtn" class="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
       </button>
-      <img src="assets/polarity-logo.png" alt="POLARITY iQ" class="hidden sm:block h-[18px] w-auto opacity-90 shrink-0">
+      <img src="assets/polarity-icon.png" alt="Polarity iQ" class="hidden sm:block sidebar-iq-icon opacity-90">
       <span id="chatTitle" class="text-sm text-muted truncate font-medium">Family Office Intelligence</span>
     </header>
 
@@ -588,7 +573,7 @@
         } else if (msg.role === 'assistant') {
           row.innerHTML = `<div class="msg-thread flex items-start gap-4">
             <div class="w-9 h-9 rounded-xl avatar-glow flex items-center justify-center shrink-0 overflow-hidden">
-              <img src="assets/polarity-logo.png" alt="Polarity iQ" onerror="this.onerror=null;this.src='assets/polarity-logo.svg'">
+              <img src="assets/polarity-icon.png" alt="Polarity iQ" class="h-[22px] w-[22px] object-contain">
             </div>
             <div class="flex-1 min-w-0">
               <div class="assistant-header">
@@ -606,7 +591,7 @@
         } else if (msg.role === 'typing') {
           row.innerHTML = `<div class="msg-thread flex items-start gap-4">
             <div class="w-9 h-9 rounded-xl avatar-glow flex items-center justify-center shrink-0">
-              <img src="assets/polarity-logo.png" alt="" class="h-[18px]" onerror="this.style.display='none'">
+              <img src="assets/polarity-icon.png" alt="" class="h-[18px] w-[18px] object-contain">
             </div>
             <div class="bubble-assistant rounded-2xl rounded-tl-md px-5 py-4 flex gap-1.5 items-center min-h-[52px]">
               <span class="typing-dot w-2 h-2 rounded-full"></span>
