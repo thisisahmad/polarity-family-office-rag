@@ -54,8 +54,14 @@ def fetch():
       f.discovery_source_url,
       f.classification_source_url,
       f.aum_usd,
+      f.aum_as_stated,
+      f.description,
       f.investing_thesis,
+      f.thesis_is_inferred,
       f.asset_classes,
+      f.corporate_linkedin,
+      f.street_address,
+      f.profile_source_tier,
 
       p.full_name           as p1_name,
       p.title               as p1_title,
@@ -152,9 +158,21 @@ def row_out(r, i):
         "country": "US",
         "website": blank(r["own_domain"]),
 
+        # Reference sample puts description / thesis / sectors immediately
+        # after the name. This is where a fund manager decides WHY to contact
+        # a firm, so it belongs up front rather than buried.
+        "description": blank(r["description"]),
+        "investment_thesis": blank(r["investing_thesis"]),
+        "thesis_basis": ("inferred from holdings, not stated by firm"
+                         if r.get("thesis_is_inferred")
+                         else ("stated by firm" if r.get("investing_thesis")
+                               else "")),
+        "investing_sectors": ", ".join(r["asset_classes"] or []),
         "aum_usd": blank(r["aum_usd"]),
-        "investing_thesis": blank(r["investing_thesis"]),
-        "asset_classes": ", ".join(r["asset_classes"] or []),
+        "aum_basis": blank(r["aum_as_stated"]),
+        "corporate_linkedin": blank(r["corporate_linkedin"]),
+        "street_address": blank(r["street_address"]),
+        "profile_source_tier": blank(r["profile_source_tier"]),
 
         "decision_maker": blank(r["p1_name"]),
         "decision_maker_title": blank(r["p1_title"]),
@@ -195,7 +213,7 @@ def main():
     print(f"{len(rows)} qualified firms\n")
 
     out = [row_out(r, i) for i, r in enumerate(rows, 1)]
-    path = f"{OUT_DIR}/family_office_dataset.csv"
+    path = f"{OUT_DIR}/family_office_dataset_1.csv"
     with open(path, "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=list(out[0].keys()))
         w.writeheader()
@@ -214,9 +232,20 @@ def main():
     print(f"  multi-family       {sum(1 for r in out if r['office_type']=='multi_family')}")
     print(f"  undetermined       {sum(1 for r in out if r['office_type']=='undetermined')}")
     print()
-    for k in ["hq_state", "website", "decision_maker", "decision_maker_linkedin",
-              "decision_maker_email", "decision_maker_phone", "recent_activity"]:
+    for k in ["description", "investment_thesis", "investing_sectors",
+              "corporate_linkedin", "street_address", "aum_usd",
+              "hq_city", "hq_state", "website",
+              "decision_maker", "decision_maker_linkedin",
+              "decision_maker_email", "decision_maker_phone",
+              "recent_activity"]:
         print(f"  {k:<26} {pct(k)}")
+
+    inferred_thesis = sum(1 for r in out
+                          if r["thesis_basis"].startswith("inferred"))
+    stated_thesis = sum(1 for r in out
+                        if r["thesis_basis"] == "stated by firm")
+    print(f"\n  thesis stated by firm      {stated_thesis}")
+    print(f"  thesis inferred            {inferred_thesis}")
 
     verified = sum(1 for r in out if r["email_status"].startswith("VERIFIED"))
     inferred = sum(1 for r in out if r["email_status"].startswith("INFERRED"))

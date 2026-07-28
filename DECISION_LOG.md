@@ -485,3 +485,41 @@ Phone near zero — direct dials aren't on public pages and I'm not buying lists
 Cleanup: Byron Allen title came back as prose ("media mogul; founder/own") not
 a job title. Need a pass on titles before CSV ships.
 
+## 2026-07-28 12:30 PKT — Compared to their sample
+
+Opened their sample properly — 31 cols, 111 rows.
+
+Ahead of them: office_type, basis, discovery source, classification URL,
+evidence trail. They don't classify SFO vs MFO or show provenance.
+
+Behind at zero: description, thesis, sectors, corporate LinkedIn, street address.
+Those sit right after the firm name — what a fund manager reads before contacting.
+Without them my file is just name + email.
+
+Their sample hides all contact fields ("Hidden" on LinkedIn, email, phone). Firm
+data open, contacts gated. That's my demo policy too — mask contacts, show
+verification status.
+
+## 2026-07-28 13:00 PKT — Profile enrichment pass
+
+Wrote `enrich_profiles.py`. Own site first, then classifier page, then snippets.
+Tracks which tier each field came from.
+
+Used their sector vocabulary from the sample. No invented theses — blank if
+nothing states it. `thesis_basis` says stated vs inferred. AUM only when a
+source says so, never from foundation assets or 13F. `aum_basis` has the quote.
+
+After pass: description 100%, city 92%, state 94%, sectors 62%, corp LinkedIn
+62%, thesis 37% (15 stated, 6 inferred), AUM 15%, street 30%. Email 49%
+(12 SMTP, 14 inferred). Phone 0% — not buying contact lists.
+
+## 2026-07-28 13:05 PKT — Final dataset check
+
+Read all 53 rows. No dupes, no page-title names, no non-US. Pitcairn correctly
+multi_family.
+
+Sources: 990-PF 26 (49%), press 23 (43%), jobs 4 (8%). No source over half.
+
+42 SFO, 11 MFO. Calling dataset final. Skipping CSV cosmetics — remaining time
+goes to RAG and getting it live.
+
