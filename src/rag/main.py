@@ -96,7 +96,7 @@ def static_assets(filename: str):
 def api_search(body: SearchRequest):
     log: list[str] = []
     claims, filters_applied, diagnostics = retrieval.search(body.query.strip())
-    answer = grounding.answer(body.query.strip(), claims, diagnostics, log)
+    answer = grounding.answer(body.query.strip(), claims, diagnostics, log, filters_applied)
     masked = _mask_response(answer, claims)
     return {
         "query": body.query,

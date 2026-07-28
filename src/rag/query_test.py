@@ -52,7 +52,7 @@ def evaluate_one(question: str, expect: str | None = None) -> dict:
     log: list[str] = []
     t0 = time.time()
     claims, filters, diagnostics = retrieval.search(question)
-    answer = grounding.answer(question, claims, diagnostics, log)
+    answer = grounding.answer(question, claims, diagnostics, log, filters)
     elapsed = round(time.time() - t0, 2)
 
     passed = None

@@ -68,6 +68,36 @@ _SECTOR_ALIASES = {
     "private credit": "Private Credit",
 }
 
+_FIRM_NAMES = None
+_DATASET_SCOPE = None
+_GENERIC_FIRM_TOKENS = {
+    "family", "office", "offices", "capital", "partners", "group",
+    "holdings", "management", "investments", "ventures", "global",
+}
+
+
+def _all_firm_names() -> list[str]:
+    global _FIRM_NAMES
+    if _FIRM_NAMES is None:
+        with conn() as c, c.cursor() as cur:
+            cur.execute("select distinct firm_name from claims order by firm_name")
+            _FIRM_NAMES = [r[0] for r in cur.fetchall()]
+    return _FIRM_NAMES
+
+
+def _dataset_scope() -> dict:
+    global _DATASET_SCOPE
+    if _DATASET_SCOPE is None:
+        with conn() as c, c.cursor() as cur:
+            cur.execute("select count(distinct firm_id) from claims")
+            total_firms = cur.fetchone()[0]
+            cur.execute(
+                "select count(distinct hq_state) from claims where hq_state is not null"
+            )
+            states = cur.fetchone()[0]
+        _DATASET_SCOPE = {"total_firms": total_firms, "states_covered": states}
+    return _DATASET_SCOPE
+
 
 def _embed(text: str) -> list[float]:
     r = requests.post(
@@ -89,6 +119,7 @@ def _parse_filters(query: str) -> dict:
         "sector": None,
         "field_name": None,
         "confirmed_only": False,
+        "firm_name": None,
     }
 
     if re.search(r"\b(confirmed|verified)\b", q):
@@ -116,6 +147,20 @@ def _parse_filters(query: str) -> dict:
     for field, hints in _FIELD_HINTS.items():
         if any(h in q for h in hints):
             filters["field_name"] = field
+            break
+
+    # A named firm overrides classification filters.
+    for nm in sorted(_all_firm_names(), key=len, reverse=True):
+        toks = [
+            t for t in re.split(r"[^A-Za-z]+", nm)
+            if len(t) > 3 and t.lower() not in _GENERIC_FIRM_TOKENS
+        ]
+        if not toks:
+            continue
+        if all(re.search(rf"\b{re.escape(t)}\b", query, re.I) for t in toks[:2]):
+            filters["firm_name"] = nm
+            filters["office_type"] = None
+            filters["confirmed_only"] = False
             break
 
     return filters
@@ -146,6 +191,10 @@ def _build_where(filters: dict) -> tuple[str, list]:
             "'investing_sectors' AND (field_value ILIKE %s OR claim_text ILIKE %s))"
         )
         params.extend([f"%{filters['sector']}%", f"%{filters['sector']}%"])
+
+    if filters.get("firm_name"):
+        clauses.append("firm_name = %s")
+        params.append(filters["firm_name"])
 
     return " AND ".join(clauses), params
 
@@ -207,10 +256,12 @@ def search(query: str, k: int = 12) -> tuple[list[dict], dict, dict]:
     top_sim = claims[0]["similarity"] if claims else 0.0
 
     filters_applied = {k: v for k, v in filters.items() if v}
+    scope = _dataset_scope()
     diagnostics = {
         "eligible_firms_after_filters": eligible_firms,
         "claims_returned": len(claims),
         "top_similarity": round(top_sim, 4),
+        "dataset_scope": scope,
     }
     return claims, filters_applied, diagnostics
 

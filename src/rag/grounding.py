@@ -105,22 +105,55 @@ def _build_citations(claims: list[dict], used_ids: set[int]) -> list[dict]:
     return out
 
 
+def _describe_filters(filters: dict) -> str:
+    parts = []
+    if filters.get("hq_state"):
+        parts.append(f"in {filters['hq_state']}")
+    if filters.get("sector"):
+        parts.append(f"investing in {filters['sector']}")
+    if filters.get("office_type"):
+        label = (
+            "single-family" if filters["office_type"] == "single_family"
+            else "multi-family"
+        )
+        parts.append(f"classified as {label}")
+    if filters.get("firm_name"):
+        parts.append(f"for {filters['firm_name']}")
+    if filters.get("confirmed_only"):
+        parts.append("with verified claims only")
+    return " ".join(parts)
+
+
+def _gate1_no_claims_message(filters: dict, diagnostics: dict) -> tuple[str, str]:
+    scope = diagnostics.get("dataset_scope") or {}
+    total = scope.get("total_firms", "53")
+    states = scope.get("states_covered", "24")
+    crit = _describe_filters(filters)
+    if crit:
+        reason = f"This dataset contains no family offices {crit}."
+    else:
+        reason = "This dataset contains no records matching that question."
+    shortfall = (
+        f"The dataset covers {total} qualified US family offices across "
+        f"{states} states. Try a different state, sector, or firm name."
+    )
+    return reason, shortfall
+
+
 def answer(
     question: str,
     claims: list[dict],
     diagnostics: dict,
     log: list,
+    filters_applied: dict | None = None,
 ) -> dict:
     top_sim = diagnostics.get("top_similarity", 0.0)
+    filters_applied = filters_applied or {}
 
     # GATE 1 — retrieval sufficiency (before any LLM call)
     if not claims:
-        return _refusal(
-            "No claims matched your filters and query.",
-            "gate1_no_claims",
-            log,
-            shortfall="Try broadening location, office type, or sector filters.",
-        )
+        reason, shortfall = _gate1_no_claims_message(filters_applied, diagnostics)
+        return _refusal(reason, "gate1_no_claims", log, shortfall=shortfall)
 
     if top_sim < SIMILARITY_THRESHOLD:
         log.append(

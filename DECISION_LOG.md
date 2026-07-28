@@ -600,3 +600,20 @@ Deploy shape:
 
 requirements.txt trimmed to web deps (fastapi, uvicorn, psycopg2-binary,
 python-dotenv, requests). Live URL in submission.
+
+## 2026-07-28 15:45 PKT — Eval 21/21, but I don't trust that number
+
+Built 15 answerable + 6 unanswerable queries all passed. Refusal set passes on
+refuse; answerable set passes on "didn't refuse" not on correctness. Ran six
+adversarial cases by hand (Pitcairn false premise, verified email on inferred
+contact, TX+real estate, inferred thesis, Wyoming zero, AUM superlative). That's
+the score I'd stand behind, not the automated 21/21.
+
+## 2026-07-28 15:50 PKT — Adversarial testing found what the suite missed
+
+Six hand traps: four correct (inferred email, inferred thesis, AUM rank refused).
+Two bugs — Pitcairn false premise filtered out the firm being asked about (looked
+like honest refusal, was a false negative); zero-result messages read like errors
+not findings. Fixed named-firm override + dataset-facing refusal text. Lesson:
+queries designed to break specific behaviours found what a passing self-eval didn't.
+
