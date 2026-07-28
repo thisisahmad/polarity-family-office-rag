@@ -48,6 +48,7 @@ flowchart TB
         A990[IRS 990-PF]
         PRESS[Press / News]
         JOBS[Job Postings]
+        EDGAR[SEC EDGAR 13F]
     end
 
     subgraph pipeline["② Pipeline (offline CLI)"]
@@ -67,7 +68,7 @@ flowchart TB
         UI[static/index.html]
     end
 
-    A990 & PRESS & JOBS --> CLS
+    A990 & PRESS & JOBS & EDGAR --> CLS
     CLS --> ENR --> IDX --> PG
     PG --> RET --> GRD --> API --> UI
 ```
@@ -91,13 +92,16 @@ flowchart TB
 ## Pipeline stages
 
 ### 1 · Discovery
-Three independent source classes — each finds firms the others miss:
+Four independent source classes — each finds firms the others miss:
 
 | Source | Finds | Blind spot |
 |---|---|---|
 | IRS 990-PF | Families via charitable foundations | No foundation / separated entity |
 | Press / news | Offices in the news | Deliberately quiet offices |
 | Job postings | Offices actively hiring | Stable, no-hire teams |
+| SEC EDGAR 13F | Managers with $100M+ in US-listed equities (legal filing obligation) | Offices below threshold, or holding mostly private/non-13F assets |
+
+> **13F is not AUM.** Filed values cover 13F-reportable US-listed positions only — never equated to total assets in this pipeline.
 
 ### 2 · Classification
 Multi-evidence gate (E1 page attestation, E2 surname, E6 press/job confirmation).  
