@@ -617,3 +617,7 @@ like honest refusal, was a false negative); zero-result messages read like error
 not findings. Fixed named-firm override + dataset-facing refusal text. Lesson:
 queries designed to break specific behaviours found what a passing self-eval didn't.
 
+Both fixed in retrieval.py and grounding.py. Named firm in the question now clears
+office_type/confirmed-only filters and scopes to that firm — Pitcairn correctly
+returns multi-family. Gate 1 zero-claims now states a dataset finding, not a query error.
+
