@@ -583,8 +583,12 @@ Deleted Dockerfile, .dockerignore, fly.toml. No container to debug on a deadline
 ## 2026-07-28 15:30 PKT — Deployed on Render (Python, free tier)
 
 Went with Render free tier. No card. Tradeoff: spins down after 15 min idle,
-cold start ~40s on first hit. External cron GETs `/health` every 10 min — no DB,
-no OpenAI — to keep it warm for reviewers.
+cold start ~40s on first hit.
+
+Added a cron-job.org task: GET `/health` every 10 minutes. Free tier sleeps
+with no traffic — a reviewer opening the URL cold would wait 40+ seconds.
+`/health` returns `{"status":"ok"}` and touches neither Postgres nor OpenAI,
+so the ping costs nothing. Keeps the instance warm between real visits.
 
 Deploy shape:
 - Python 3, `pip install -r requirements.txt`
