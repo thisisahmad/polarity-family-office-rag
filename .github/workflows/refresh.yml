@@ -1,0 +1,46 @@
+name: refresh-records
+
+on:
+  schedule:
+    # Every 12 hours. GitHub schedules run in UTC and are best-effort —
+    # actual fire time can drift by several minutes, which is fine.
+    # This gives up to 4 opportunities inside a 48h window in case one
+    # is delayed or fails.
+    - cron: "0 */12 * * *"
+  workflow_dispatch:
+    # Manual trigger for TESTING ONLY during build. A manually-dispatched
+    # run does not count toward the "not triggered by you" requirement.
+    # Every run this script logs must record trigger_type so scheduled
+    # and manual runs are distinguishable in the evidence.
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run refresh cycle
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: python src/agent/refresh_cycle.py
+
+      - name: Upload run log as artifact
+        # This is what makes the run independently inspectable later —
+        # a reviewer can download the raw log without database access.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-log-${{ github.run_id }}
+          path: run_logs/*.json
+          retention-days: 90
