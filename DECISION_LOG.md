@@ -621,6 +621,59 @@ Both fixed in retrieval.py and grounding.py. Named firm in the question now clea
 office_type/confirmed-only filters and scopes to that firm — Pitcairn correctly
 returns multi-family. Gate 1 zero-claims now states a dataset finding, not a query error.
 
-## 2026-07-28 16:30 PKT — Added the Validation Layer 
+## 2026-08-02 17:20 PKT — Stage 2 task, what i thought
 
-Added the validation layer and wrote my findings
+3% is bad because nobody signs up to a family office database by accident
+they're all high intent, so 97% leaving is not normal , people only sign when
+they want to .
+
+and another thing is the free tier hands over records are not good for
+customers, they dont like it i think , they only get same records on test
+accounts or free accounts.
+
+and why the retention rate is only 3% and 97% leave maybe bacause they dont
+find the data useful , may be they thought why they have to pay for this data
+while this data they can get by searching , they prefer searching the data over
+easily finding data from our platform .
+
+they want to understsnd the full system first rather then the new AI features.
+
+## 2026-08-02 17:22 PKT — Audit script after feedback
+
+And i wrote a script after reading the feedback , that audits the released CSv
+rather then the database , because that was the root of the mismatches. It
+confirmed his numbers 12 leaked emails, 24 LinkedIn not 39, 41 rows with an
+email and no status column.
+
+## 2026-08-02 17:24 PKT — LinkedIn verification
+
+And after that i opened the linkedin URLs and verified of these 24 family
+officers , and verified these 4 things does it load, name match, is the firm
+their current employer, title match. and after this i got 17 clean, 7 with
+problems. And Bezos and Badar profiles never name the firm at all.
+
+## 2026-08-02 17:26 PKT — Location problem
+
+And also  24 of 26 qualified 990-PF records have hq_city copied straight from
+the foundation's address.
+
+So the pipeline verified zero locations.
+Also 3 of those locations came from PO Boxes, and 4 city values are IRS filing
+abbreviations shipped as real place names  "L Compton", "Salt Lake Cty",
+"Charlottesvle".
+
+## 2026-08-02 17:28 PKT — Kao traced
+
+And i have traced kao there is no linkedin company page he just added manually
+and title is Private Investor . His real current firm is Akanthos Capital
+Management. And the url urbankaoboy.com is his Substack newsletter, not a firm
+site.
+
+## 2026-08-02 17:29 PKT — Carter traced
+
+And for carter the location came from Carter Family Charitable Trust, PO Box 179,
+L Compton RI. The firm's LinkedIn is UK region with a London description.
+Nothing connects them except the surname and my E2 rule only checked the
+surname, not whether it's the same family.
+so yes this was the issue
+

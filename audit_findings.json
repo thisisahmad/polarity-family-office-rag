@@ -1,0 +1,1023 @@
+{
+  "audited_file": "data/family_office_dataset.csv",
+  "rows": 53,
+  "run_at": "2026-08-03T12:05:43",
+  "recent_cutoff": "2025-01-28",
+  "findings": [
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "George Family Office",
+      "detail": "decision_maker_email=penny.george@billgeorge.org is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Lupine Crest Capital",
+      "detail": "decision_maker_email=jeanpierre.conte@lupinecrest.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Alpine AM",
+      "detail": "decision_maker_email=andrew.shih@alpineam.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Badar Family Office",
+      "detail": "decision_maker_email=taseer.badar@badarfamilyoffice.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Badar Family Office",
+      "detail": "principal_2_email=baber.sheikh@badarfamilyoffice.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Badar Family Office",
+      "detail": "principal_3_email=arsalan.rauf@badarfamilyoffice.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Gates Capital Partners",
+      "detail": "decision_maker_email=jina.kim@gatescapital.net is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Gates Capital Partners",
+      "detail": "principal_2_email=diane.wallach@gatescapital.net is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Gates Capital Partners",
+      "detail": "principal_3_email=john.gates@gatescapital.net is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "Caprock",
+      "detail": "principal_3_email=gregory.brown@caprock.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "AC Family Office",
+      "detail": "decision_maker_email=michael.dieschbourg@acfamilyoffice.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "rejected_in_release",
+      "severity": "CRITICAL",
+      "firm": "AC Family Office",
+      "detail": "principal_2_email=maxwell.smith@acfamilyoffice.com is in audit_rejected_values.csv",
+      "needs_human_review": false
+    },
+    {
+      "check": "linkedin_not_person",
+      "severity": "MEDIUM",
+      "firm": "Lupine Crest Capital",
+      "detail": "not a /in/ profile URL: https://www.linkedin.com/posts/jean-pierre-conte-014503170_lupine-crest-capital-family-office-of-jean-pierre-activity-7358807036224024578-RIls",
+      "needs_human_review": false
+    },
+    {
+      "check": "linkedin_not_person",
+      "severity": "MEDIUM",
+      "firm": "Kao Family Office",
+      "detail": "not a /in/ profile URL: https://www.linkedin.com/posts/kaomichael_investing-clo-equity-cef-faq-ecc-spotlight-activity-7432084481995472896-TcDN",
+      "needs_human_review": false
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Bezos Expeditions",
+      "detail": "Melinda Lewison -> https://www.linkedin.com/in/melindalewison",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Esrick Enterprises",
+      "detail": "Steven Esrick -> https://www.linkedin.com/in/steven-esrick-a5a92a18",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "119th Street Capital",
+      "detail": "Ethan White -> https://www.linkedin.com/in/ethanjwhite",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Carter Family Office",
+      "detail": "Luke Carter -> https://uk.linkedin.com/in/lukecarter07",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Green Bay Management Company",
+      "detail": "Mary Krey -> https://www.linkedin.com/in/mary-krey-6b745769",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Pritzker Family Office, LLC",
+      "detail": "Tim Parker -> https://www.linkedin.com/in/tim-parker-42944945",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Stuller Family Office",
+      "detail": "Steven Ramos -> https://www.linkedin.com/in/steven-ramos-79b74b36",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Badar Family Office",
+      "detail": "Taseer Badar -> https://www.linkedin.com/in/taseerbadar",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Berritto Family Office",
+      "detail": "Anthony Berritto -> https://www.linkedin.com/in/anthony-berritto-92048887",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Hilton Family Office",
+      "detail": "Mark Miller -> https://www.linkedin.com/in/markmiller-hiltonfo",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Gleason Family Office",
+      "detail": "Neil Gleason -> https://www.linkedin.com/in/neil-gleason-877aa037",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "TriEdge Investments",
+      "detail": "Simcha Hyman -> https://www.linkedin.com/in/simcha-hyman-b530a52b",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Heinz Family Office",
+      "detail": "McCall Cravens -> https://www.linkedin.com/in/mccall-cravens-8171a96",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Gates Capital Partners",
+      "detail": "Jina Kim -> https://www.linkedin.com/in/jinakimgatescapitalpartners",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Schultz Capital Partners",
+      "detail": "Ron Graves -> https://www.linkedin.com/in/ron-graves-b554b751",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "The Bravo Family Office",
+      "detail": "Danny Bravo -> https://www.linkedin.com/in/danielbravo",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Caprock",
+      "detail": "Vivek Jindal -> https://www.linkedin.com/in/vivek-jindal-7107403",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Corient",
+      "detail": "Matt Krauss -> https://www.linkedin.com/in/matt-krauss-cfa-5800895",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Laird Norton Wetherby",
+      "detail": "Ronald G. Albahary -> https://www.linkedin.com/in/ron-albahary-cfa",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "AC Family Office",
+      "detail": "Michael Dieschbourg -> https://www.linkedin.com/in/mdieschbourg",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "AlTi Global",
+      "detail": "Nancy Curtin -> https://uk.linkedin.com/in/nancy-curtin-46639382",
+      "needs_human_review": true
+    },
+    {
+      "check": "linkedin_needs_manual_check",
+      "severity": "REVIEW",
+      "firm": "Wellspring Family Office",
+      "detail": "Michael Novak -> https://www.linkedin.com/in/michael-t-novak2",
+      "needs_human_review": true
+    },
+    {
+      "check": "geography_conflict",
+      "severity": "HIGH",
+      "firm": "Dalio Family Office",
+      "detail": "non-US terms ['singapore'] in a row marked Westport, CT",
+      "needs_human_review": true
+    },
+    {
+      "check": "geography_conflict",
+      "severity": "HIGH",
+      "firm": "Lupine Crest Capital",
+      "detail": "non-US terms ['brazil'] in a row marked Aspen, CO",
+      "needs_human_review": true
+    },
+    {
+      "check": "geography_conflict",
+      "severity": "HIGH",
+      "firm": "Carter Family Office",
+      "detail": "non-US terms ['london', 'united kingdom'] in a row marked L Compton, RI",
+      "needs_human_review": true
+    },
+    {
+      "check": "geography_conflict",
+      "severity": "HIGH",
+      "firm": "CYMI Holding",
+      "detail": "non-US terms ['brazil', 's.a.'] in a row marked Dayton, OH",
+      "needs_human_review": true
+    },
+    {
+      "check": "geography_conflict",
+      "severity": "HIGH",
+      "firm": "Berritto Family Office",
+      "detail": "non-US terms ['jersey'] in a row marked Miami, FL",
+      "needs_human_review": true
+    },
+    {
+      "check": "location_mismatch",
+      "severity": "HIGH",
+      "firm": "Lupine Crest Capital",
+      "detail": "hq_city=Aspen but description says San Francisco",
+      "needs_human_review": true
+    },
+    {
+      "check": "location_mismatch",
+      "severity": "HIGH",
+      "firm": "Carter Family Office",
+      "detail": "hq_city=L Compton but description says London",
+      "needs_human_review": true
+    },
+    {
+      "check": "location_mismatch",
+      "severity": "HIGH",
+      "firm": "SK Hart Management, LLC",
+      "detail": "hq_city=Salt Lake Cty but description says Salt Lake City",
+      "needs_human_review": true
+    },
+    {
+      "check": "location_mismatch",
+      "severity": "HIGH",
+      "firm": "Pitcairn",
+      "detail": "hq_city=Fircrest but description says Philadelphia with additional offices in New York and Washington",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Allen Family Capital",
+      "detail": "On 2026-03-05, Allen Family Capital, LLC acquired 1,803,786 common shares of Starz Entertainment Corp., representing a 1",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Blue Haven Initiative",
+      "detail": "Blue Haven Initiative was featured in its Issue 8 Summer 2026 newsletter, highlighting an investment spotlight on Enduri",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Council Ring Capital",
+      "detail": "On 2024-09-03, Council Ring Capital acted as lead investor in DevCo Partners Ltd's \u20ac616 million investment vehicle to su",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Dalio Family Office",
+      "detail": "On 2026-02-20, Ray Dalio's family office disclosed a $500 million bet on U.S. stocks, revealing its U.S. equity investme",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Duquesne Family Office",
+      "detail": "On 2026-05-19, Institutional Investor reported that Duquesne Family Office adjusted its public-equity portfolio, cutting",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Esrick Enterprises",
+      "detail": "Esrick Enterprises posted a full-time Accounting Manager/Controller job opening in Beach, Florida, indicating an expansi",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Frazier Group",
+      "detail": "On 2025-08-26, Frazier Group participated in Sequifi\u2019s $6.7 million seed funding round led by Cervin Ventures.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Highlander Partners",
+      "detail": "On July 6, 2026, Highlander Partners announced the sale of its defense technology business, Dzyne Technologies, to Ondas",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Lupine Crest Capital",
+      "detail": "On 2026-06-17, Lupine Crest Capital significantly increased its investment in Brazilian waste-to-energy company Orizon.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Nickolas Asset Management",
+      "detail": "On 2026-03-03, Nickolas Asset Management acquired Associated Plastics Corporation to expand its Ohio manufacturing footp",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Vinik Family Office",
+      "detail": "On 2023-09-18, news reported that former Vinik Family Office president Jim O'Connell is launching a new investment firm ",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "119th Street Capital",
+      "detail": "On 2025-10-09, 119th Street Capital made a strategic investment in DSWD, LLP.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Access Industries",
+      "detail": "As of July 8, 2026, Access Industries is profiled with updated details on its top investments and portfolio trends by Tr",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Alpine AM",
+      "detail": "On 2026-04-21, Alpine AM reported plans to allocate up to $4 billion across direct, indirect and co-investments over the",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Anschutz Investment Company",
+      "detail": "Anschutz Investment Company participated in a $45.0M Series D funding round in Movius in March 2019.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Carter Family Office",
+      "detail": "On 2026-01-28, MandateWire\u2019s AOX blog featured Carter Family Office in a discussion on why asset owner investment in com",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "CYMI Holding",
+      "detail": "Financial statements for 2025 and 2024 referencing CYMI Holding S.A. and related entities were published by State Grid B",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Oberndorf Ventures",
+      "detail": "In November 2021, Oberndorf Ventures co-led a USD 90 million Series B funding round in Tegus, Inc.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Stuller Family Office",
+      "detail": "In April 2025, Stuller Family Office hired Rebekah Hargroder Johnson as an Investment Analyst.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Badar Family Office",
+      "detail": "On 2025-12-19, Badar Family Office, via its ownership of ZT Corporate, was referenced in a Business Wire release announc",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Berritto Family Office",
+      "detail": "Berritto Family Office acquired a mixed-use office/retail portfolio in Boca Raton for approximately $92.7\u2013$93 million.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Mitchell Family Office",
+      "detail": "In September 2025, Birmingham, Michigan-based Mitchell Family Office acquired luxury beauty retailer Cos Bar for an undi",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Zell Family Office",
+      "detail": "On October 7, 2024, The FO Pro published an article profiling the Zell Family Office head\u2019s philosophy that family wealt",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Lewis & Clark Capital",
+      "detail": "On 2025-11-03, Lewis & Clark Capital announced the addition of J.P. Lynch to its investment team.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Kao Family Office",
+      "detail": "Kao Family Office made a seed investment in Anytime AI.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "White Oak Enterprises, Inc. (Bainum Family Office)",
+      "detail": "On 2023-10-23, the Bainum family office hired Patrick George to lead the restructured family office, succeeding longtime",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Beemok Capital",
+      "detail": "On July 31, 2025, Beemok Capital launched a startup pitch competition offering up to $1 million for local companies.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Heinz Family Office",
+      "detail": "On September 30, 2025, Institutional Investor reported that Heinz Family Office CIO McCall Cravens was named the 2025 Fa",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Schultz Capital Partners",
+      "detail": "Schultz Capital Partners participated in the Series B-II funding round of Culture Pop Soda on 2025-04-10.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Arcadia Investment Partners",
+      "detail": "Arcadia Investment Partners made an investment in Siena Plastics on 2025-12-04.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Caprock",
+      "detail": "On 2025-06-05, Caprock appointed Vivek Jindal as its new chief investment officer.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Corient",
+      "detail": "On May 13, 2026, Corient announced the acquisition of Capital Advisors, a Tulsa, Oklahoma wealth manager with $7.8 billi",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Laird Norton Wetherby",
+      "detail": "On 2024-01-11, Laird Norton Wealth Management and Wetherby Asset Management announced they had united their six offices ",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "AC Family Office",
+      "detail": "On May 20, 2026, AC Family Office recruited Henry Pizzutello to expand its presence in The Woodlands and Beaumont region",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "AlTi Global",
+      "detail": "On 2026-05-12, WealthBriefing reported that a significant valuation gap of around $600 million or more is hampering effo",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Cresset Capital Management LLC",
+      "detail": "On November 27, 2024, Cresset Capital Management LLC announced that it had closed on a minority investment from Constell",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Market Street Trust Co.",
+      "detail": "Illinois State Treasury chief investment officer Joe Aguilar is leaving after a decade with the office to join Market St",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Wellspring Family Office",
+      "detail": "On June 22, 2026, Wellspring Family Office was named to CNBC's first-ever Elite Advisors list of the country's top inves",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Pitcairn",
+      "detail": "Pitcairn named Carlin Calcaterra as managing director of investment strategy in a newly created role.",
+      "needs_human_review": true
+    },
+    {
+      "check": "signal_needs_entity_check",
+      "severity": "REVIEW",
+      "firm": "Ballentine Partners",
+      "detail": "On 2026-02-24, Ballentine Partners announced the promotion of four professionals to Partner.",
+      "needs_human_review": true
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Council Ring Capital",
+      "detail": "activity_date 2024-09-03 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Esrick Enterprises",
+      "detail": "activity_date 2024-04-22 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Vinik Family Office",
+      "detail": "activity_date 2023-09-18 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Anschutz Investment Company",
+      "detail": "activity_date 2019-03-01 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Oberndorf Ventures",
+      "detail": "activity_date 2021-11-01 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Zell Family Office",
+      "detail": "activity_date 2024-10-07 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Kao Family Office",
+      "detail": "activity_date 2024-09-04 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "White Oak Enterprises, Inc. (Bainum Family Office)",
+      "detail": "activity_date 2023-10-23 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Laird Norton Wetherby",
+      "detail": "activity_date 2024-01-11 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "stale_signal",
+      "severity": "HIGH",
+      "firm": "Cresset Capital Management LLC",
+      "detail": "activity_date 2024-11-27 is before cutoff 2025-01-28",
+      "needs_human_review": false
+    },
+    {
+      "check": "company_in_person_field",
+      "severity": "HIGH",
+      "firm": "Access Industries",
+      "detail": "decision_maker=Lincoln Benet",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Allen Family Capital",
+      "detail": "decision_maker_title=media mogul; founder/owner of Allen Family Capital (investment arm and family office)",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Council Ring Capital",
+      "detail": "decision_maker_title=Founder (formed Council Ring Capital; President of Medline)",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Nickolas Asset Management",
+      "detail": "decision_maker_title=Founder; President",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Anschutz Investment Company",
+      "detail": "principal_2_title=Managing Director; Co-Head Anschutz Trading Opportunities",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Kao Family Office",
+      "detail": "decision_maker_title=CIO and Portfolio Manager; Private Investor; Founder",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Caprock",
+      "detail": "principal_2_title=Chief Operating Officer, Chief Compliance Officer and Managing Director",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "AlTi Global",
+      "detail": "decision_maker_title=Interim Chief Executive Officer and Global Chief Investment Officer",
+      "needs_human_review": false
+    },
+    {
+      "check": "prose_in_title",
+      "severity": "MEDIUM",
+      "firm": "Pitcairn",
+      "detail": "principal_3_title=Managing Director, Fiduciary & Legal Services (Pitcairn Trust Co.)",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Blue Haven Initiative",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Blue Haven Initiative",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Frazier Group",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Frazier Group",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Highlander Partners",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Highlander Partners",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Nickolas Asset Management",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Nickolas Asset Management",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Access Industries",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Access Industries",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Carter Family Office",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Carter Family Office",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "SK Hart Management, LLC",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "SK Hart Management, LLC",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Badar Family Office",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Badar Family Office",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Hilton Family Office",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Mitchell Family Office",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Mitchell Family Office",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "TriEdge Investments",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Beemok Capital",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Beemok Capital",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Gates Capital Partners",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Gates Capital Partners",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Arcadia Investment Partners",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Arcadia Investment Partners",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Caprock",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Caprock",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Corient",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Corient",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Laird Norton Wetherby",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Laird Norton Wetherby",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "AC Family Office",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "AlTi Global",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "AlTi Global",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Cresset Capital Management LLC",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Cresset Capital Management LLC",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Wellspring Family Office",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Wellspring Family Office",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Ballentine Partners",
+      "detail": "principal_2_email populated with no principal_2_email_status column in the schema",
+      "needs_human_review": false
+    },
+    {
+      "check": "missing_status_column",
+      "severity": "CRITICAL",
+      "firm": "Ballentine Partners",
+      "detail": "principal_3_email populated with no principal_3_email_status column in the schema",
+      "needs_human_review": false
+    }
+  ]
+}
