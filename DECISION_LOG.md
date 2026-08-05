@@ -677,3 +677,100 @@ Nothing connects them except the surname and my E2 rule only checked the
 surname, not whether it's the same family.
 so yes this was the issue
 
+## 2026-08-04 10:0 PKT — Added Github Actions
+
+added github action workflow and refresh cycle script
+
+## 2026-08-04 11:00 PKT — Read the Stage 2 brief, my email method is now useless
+
+Stage 2 says guessed emails don't count, even if the mail server accepts them.
+All 67 emails from Stage 1 were guessed from a name pattern. So all that work
+is worth zero now.
+
+I need 200 records out of 500 with a real email. No guessing anymore. Only an
+email a page actually prints next to a person's name.
+
+## 2026-08-04 12:00 PKT — Deployed GitHub Actions before building anything else
+
+The brief says the system should keep working while it grows to 500. So I
+deployed with only my 53 records instead of waiting to reach 500 first. Wrote
+refresh_cycle.py and set it to run every 12 hours. Tested it once by hand, it
+worked on real records and wrote logs in two places.
+
+Wrote decide_trust() so it can only flag a record when the SOURCE changes -
+page is gone, content changed, site unreachable. Nothing gets flagged just
+because time passed, because the brief says old age alone is not a reason.
+
+## 2026-08-04 13:00 PKT — First real flag
+
+Duquesne Family Office got flagged. The source page no longer has the firm
+name on it. That is a real signal, I did not force it. Still need to check by
+hand that it is not just because my script only reads part of the page.
+
+## 2026-08-04 14:00 PKT — Tried the ADV per-firm API for emails, did not work
+
+Form ADV item 1.J should have the CCO name and phone. I built
+source_adv_contact.py against an endpoint I guessed. Got 403. That endpoint
+does not exist the way I built it - adviserinfo.sec.gov is a JS site, not a
+plain JSON API at that path.
+
+Same mistake as before: I wrote code before checking the source.
+
+## 2026-08-04 15:00 PKT — Built a team-page email scraper instead
+
+Wrote source_team_pages.py. It checks team, about and contact pages on the
+firm's own domain, and only saves an email if a name is clearly attached to it
+in the text.
+
+Ran it on 25 firms, including all 9 MFOs. Got 1 usable email. Even big firms
+like Corient and Cresset gave nothing. That is a real limit of the source, not
+a bug in my code.
+
+## 2026-08-04 15:30 PKT — Found a bug in my own scraper
+
+George Family Office gave me two "named" emails, but the domains were
+bpgeorge.com and fortierpr.com, not billgeorge.org. That is a PR agency
+contact, not the firm's own person.
+
+Fixed it: the email domain must match the firm's own domain, otherwise the
+match is thrown away. Re-ran and the fix worked.
+
+Same pattern as Stage 1 - no crash, script looked fine, data was wrong. Only
+found it by reading the actual rows.
+
+## 2026-08-04 16:00 PKT — Tried press release contacts
+
+Different source this time: the media contact block at the bottom of press
+releases. Built source_press_contacts.py and reused URLs already in my DB
+from signals.
+
+Ran on 15 releases, 11 loaded. Got 1 result and it was not even a real
+contact - "Trevelino/Keller" is a PR agency name, not a person. My extractor
+should know that a name with a slash in it is a company, not a person.
+
+## 2026-08-04 17:00 PKT — Three sources, same answer every time
+
+Team pages: 1 from 30. Press releases: 0 real ones from 11.
+
+Both point at the same thing. Personal named emails are just rare for these
+firms. This is a finding about the population, not a tooling problem.
+
+## 2026-08-04 18:00 PKT — Looked at the ADV bulk file instead of the API
+
+Found SEC's official monthly bulk file on sec.gov. Downloadable, no blocking
+per request.
+
+This time I checked the real column headers BEFORE writing any code. There is
+no CCO email and no CCO name column anywhere in it. So it cannot help my email
+number. But it does have a real firm phone number, filed with the SEC
+directly, so it is still worth using.
+
+## 2026-08-04 19:00 PKT — Loaded the ADV bulk file
+
+6,604 rows in the file. 8 matched a family office name pattern. Two were
+foreign, Calgary and Geneva, so I have to drop those since my scope is US
+only. That leaves 6 real US candidates.
+
+Small number, but this is a live source and I can widen the search patterns
+later if these 6 turn out to be real family offices.
+
