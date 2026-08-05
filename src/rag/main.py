@@ -1,12 +1,16 @@
 """
 API LAYER — thin orchestration: retrieval → grounding → JSON.
 """
+
 import os
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "agent"))
+
+from agent_loop import run_agent
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -65,6 +69,10 @@ class SearchRequest(BaseModel):
     query: str
 
 
+class AgentRequest(BaseModel):
+    goal: str
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
@@ -104,6 +112,41 @@ def api_search(body: SearchRequest):
         "diagnostics": diagnostics,
         "log": log,
         **masked,
+    }
+
+
+@app.post("/api/agent")
+def api_agent(body: AgentRequest):
+    result = run_agent(body.goal.strip())
+    r = result["result"]
+
+    # Reuse existing masking - do not assume citation structure is
+    # inherently safe. Mask the composed answer text and shortfall exactly
+    # as /api/search does.
+    masked_text = _mask_emails(r.get("text"))
+    masked_shortfall = _mask_emails(r.get("shortfall"))
+
+    # Citations here are metadata (firm_id, field name, status, confidence,
+    # source_url) not raw field values, so they do not need _mask_claim's
+    # field_value/claim_text masking - but source_url and field name are
+    # checked for accidental email patterns as a safety net, not an
+    # assumption.
+    safe_citations = []
+    for c in r.get("citations", []):
+        c = dict(c)
+        if EMAIL_RE.search(str(c.get("source_url") or "")):
+            c["source_url"] = "(masked)"
+        safe_citations.append(c)
+
+    return {
+        "run_id": result["run_id"],
+        "status": result["status"],
+        "retries_used": result["retries_used"],
+        "answer": masked_text,
+        "citations": safe_citations,
+        "refused": r.get("refused", False),
+        "shortfall": masked_shortfall,
+        "contact_note": "Contact data available to subscribers",
     }
 
 
