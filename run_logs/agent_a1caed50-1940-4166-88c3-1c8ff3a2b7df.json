@@ -1,0 +1,173 @@
+{
+  "run_id": "a1caed50-1940-4166-88c3-1c8ff3a2b7df",
+  "goal": "Which single-family offices are in Texas?",
+  "started_at": "2026-08-05T07:23:40.597536+00:00",
+  "finished_at": "2026-08-05T07:24:13.839580+00:00",
+  "retries_used": 0,
+  "status": "answered",
+  "result": {
+    "text": "One identified single-family office in Texas is Highlander Partners, which is a single-family office based in Dallas, TX.",
+    "citations": [
+      {
+        "n": 1,
+        "firm_id": 350,
+        "firm_name": "Highlander Partners",
+        "field": "office_type",
+        "status": "accepted",
+        "confidence": 0.95,
+        "source_url": "https://highlander-partners.com",
+        "as_of": null
+      },
+      {
+        "n": 2,
+        "firm_id": 350,
+        "firm_name": "Highlander Partners",
+        "field": "location",
+        "status": "accepted",
+        "confidence": 0.8,
+        "source_url": "https://highlander-partners.com",
+        "as_of": null
+      },
+      {
+        "n": 3,
+        "firm_id": 350,
+        "firm_name": "Highlander Partners",
+        "field": "description",
+        "status": "accepted",
+        "confidence": 0.8,
+        "source_url": "https://highlander-partners.com",
+        "as_of": null
+      }
+    ],
+    "refused": false,
+    "reason": "",
+    "gate_triggered": null,
+    "sufficient": false,
+    "shortfall": "The claims only identify one single-family office in Texas (Highlander Partners) and do not provide a comprehensive list of all single-family offices in Texas, so I cannot fully answer which single-family offices are in Texas beyond this example.",
+    "sentences": [
+      {
+        "text": "One identified single-family office in Texas is Highlander Partners, which is a single-family office based in Dallas, TX.",
+        "claim_ids": [
+          1,
+          2,
+          3
+        ]
+      }
+    ]
+  },
+  "events": [
+    {
+      "step": "plan",
+      "at": "2026-08-05T07:23:44.112507+00:00",
+      "goal": "Which single-family offices are in Texas?",
+      "max_retries": 2
+    },
+    {
+      "step": "retrieve",
+      "at": "2026-08-05T07:23:57.468002+00:00",
+      "query": "Which single-family offices are in Texas?",
+      "filters": {
+        "hq_state": "TX",
+        "office_type": "single_family",
+        "sector": null,
+        "field_name": null,
+        "confirmed_only": false,
+        "firm_name": null
+      },
+      "diagnostics": {
+        "eligible_firms_after_filters": 1,
+        "candidates_before_rerank": 11,
+        "packages_returned": 11,
+        "top_similarity": 0.518,
+        "top_final_score": 0.863
+      },
+      "packages_count": 11
+    },
+    {
+      "step": "retry_quality_check",
+      "at": "2026-08-05T07:23:59.984681+00:00",
+      "verdict": "improved",
+      "this_similarity": 0.518,
+      "previous_best": -1.0
+    },
+    {
+      "step": "deterministic_prefilter",
+      "at": "2026-08-05T07:24:02.434588+00:00",
+      "passed": true,
+      "reason": "passed deterministic pre-filter",
+      "accumulated_evidence_count": 11
+    },
+    {
+      "step": "evaluate",
+      "at": "2026-08-05T07:24:07.016711+00:00",
+      "judgment": {
+        "sufficient": false,
+        "reasoning": "The goal asks for multiple single-family offices in Texas, but the evidence contains only one firm (Highlander Partners) and thus does not adequately answer the question.",
+        "retry_strategy": "broaden_filters",
+        "retry_query": "single-family office OR family office AND location:Texas"
+      },
+      "evaluated_on_accumulated_count": 11
+    },
+    {
+      "step": "retry_decision",
+      "at": "2026-08-05T07:24:09.469351+00:00",
+      "decision": "rejected - proposed retry query uses unsupported boolean/field syntax, stopping rather than degrading retrieval further",
+      "proposed_query": "single-family office OR family office AND location:Texas"
+    },
+    {
+      "step": "final",
+      "at": "2026-08-05T07:24:16.231445+00:00",
+      "status": "answered",
+      "result": {
+        "text": "One identified single-family office in Texas is Highlander Partners, which is a single-family office based in Dallas, TX.",
+        "citations": [
+          {
+            "n": 1,
+            "firm_id": 350,
+            "firm_name": "Highlander Partners",
+            "field": "office_type",
+            "status": "accepted",
+            "confidence": 0.95,
+            "source_url": "https://highlander-partners.com",
+            "as_of": null
+          },
+          {
+            "n": 2,
+            "firm_id": 350,
+            "firm_name": "Highlander Partners",
+            "field": "location",
+            "status": "accepted",
+            "confidence": 0.8,
+            "source_url": "https://highlander-partners.com",
+            "as_of": null
+          },
+          {
+            "n": 3,
+            "firm_id": 350,
+            "firm_name": "Highlander Partners",
+            "field": "description",
+            "status": "accepted",
+            "confidence": 0.8,
+            "source_url": "https://highlander-partners.com",
+            "as_of": null
+          }
+        ],
+        "refused": false,
+        "reason": "",
+        "gate_triggered": null,
+        "sufficient": false,
+        "shortfall": "The claims only identify one single-family office in Texas (Highlander Partners) and do not provide a comprehensive list of all single-family offices in Texas, so I cannot fully answer which single-family offices are in Texas beyond this example.",
+        "sentences": [
+          {
+            "text": "One identified single-family office in Texas is Highlander Partners, which is a single-family office based in Dallas, TX.",
+            "claim_ids": [
+              1,
+              2,
+              3
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

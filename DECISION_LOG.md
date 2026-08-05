@@ -774,3 +774,29 @@ only. That leaves 6 real US candidates.
 Small number, but this is a live source and I can widen the search patterns
 later if these 6 turn out to be real family offices.
 
+## 2026-08-05 11:00 AM PKT — Ranking now uses trust, not just similarity
+
+Built retrieval_v2.py. Ranking = similarity + trust + recency + confidence.
+
+First version read trust from the claim rows, so Duquesne still looked clean
+even though refresh_cycle.py flagged the firm yesterday. Two trust signals
+that never talked to each other.
+
+Fixed by joining claims to firms so a firm-level flag wins. Duquesne now
+scores 0.70 against 0.79-0.85 for clean records, and the flag reason goes
+into the answer so it can say WHY the record is trusted less.
+
+## 2026-08-05 12:00 PM PKT — Agent loop works now, one thing left to fix
+
+Saw a real failure first. The agent retried with search syntax in the query,
+similarity dropped 0.518 to 0.321, and it threw away the good evidence from
+pass 1. Fixed both: keep evidence from every pass, and block bad retry
+queries.
+
+Ran the same goal again. No retries, right answer, right citations, and it
+said honestly that the answer may not be complete.
+
+Still to do: the logs know the exact number of firms that passed the filters,
+but the answer only says "I cannot be sure this is complete". It should say
+the real number when it has it.
+
