@@ -800,3 +800,18 @@ Still to do: the logs know the exact number of firms that passed the filters,
 but the answer only says "I cannot be sure this is complete". It should say
 the real number when it has it.
 
+## 2026-08-05 01:00 PM PKT — Checked Gate 2 on a real answer, found a limit
+
+Asked "who is the decision maker at Zell Family Office". It named two people
+with titles. I opened the claim_text in the DB and compared instead of just
+trusting the citation looked fine. Names and titles matched exactly, so the
+answer was real, not made up.
+
+But that only worked because the stored claim was correct. Gate 2 only checks
+that the cited claim_id was actually retrieved. It does not check that the
+sentence says the same thing as that claim. So a model could cite a real
+claim and still describe it wrong, and Gate 2 would let it pass.
+
+Writing this down as a known limit. Gate 2 stops uncited sentences, it does
+not prove the wording is accurate.
+
