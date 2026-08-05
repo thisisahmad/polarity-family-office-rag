@@ -25,11 +25,36 @@ SLEEP = 0.5   # be polite; free public API
 
 # Foundation names that imply a single identifiable family.
 QUERIES = [
+    # original 5
     "family foundation",
     "family charitable trust",
     "family charitable foundation",
     "family fund",
     "family trust",
+
+    # surname-pattern variants (catches foundations that don't literally
+    # say "family" but still follow the surname+entity-type pattern)
+    "family charitable fund",
+    "family philanthropic foundation",
+    "family private foundation",
+    "family legacy foundation",
+    "generational family foundation",
+
+    # entity-type variety beyond "foundation/trust/fund"
+    "family charitable corporation",
+    "family foundation inc",
+    "family endowment",
+
+    # state-scoped, high-net-worth-density states - multiplies coverage
+    # for the SAME query terms since ProPublica paginates per search
+    "family foundation texas",
+    "family foundation california",
+    "family foundation new york",
+    "family foundation florida",
+    "family foundation illinois",
+    "family foundation massachusetts",
+    "family foundation colorado",
+    "family foundation connecticut",
 ]
 
 # IRS names are usually UPPERCASE: "SMITH FAMILY FOUNDATION"
