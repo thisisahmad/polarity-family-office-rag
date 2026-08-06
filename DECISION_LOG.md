@@ -815,3 +815,264 @@ claim and still describe it wrong, and Gate 2 would let it pass.
 Writing this down as a known limit. Gate 2 stops uncited sentences, it does
 not prove the wording is accurate.
 
+## 2026-08-05 02:15 PM PKT — Agent endpoint live, checked the masking myself
+
+Added /api/agent to main.py. I reused the existing _mask_emails() instead of
+assuming the agent path was already safe. Tested it - asked for a decision
+maker, checked the output for an email pattern. Nothing leaked.
+
+Both /api/search and /api/agent are live on Render against the real database.
+
+## 2026-08-05 05:00 PM PKT — ADV bulk loaded, small yield
+
+6,604 rows. 8 matched a family office name. Two were foreign (Calgary,
+Geneva) so I dropped them. 6 US candidates.
+
+Six of the 8 were later rejected at classification for the same reason: the
+only evidence was a name with "Family Office" in it from a registration
+snippet. That is correct - a name is not evidence. So ADV bulk gives me firm
+names, not qualified records, unless something else enriches them after.
+
+## 2026-08-05 06:00 PM PKT — Messaged Brian about the email finding
+
+Told him three sources all pointed the same way, so I was going to stop
+spending hours on emails and go for record count instead.
+
+## 2026-08-05 06:29 PM PKT — Brian corrected me, and he was right twice
+
+First: I only tested ONE KIND of method. Team pages, press releases and ADV
+bulk are all just scraping documents that are already published. That proves
+published emails are hard to find. It proves nothing about the market. I hit
+the wall of one approach and called it a fact about the world. Same mistake
+my Stage 1 feedback named, except this time on a strategy decision instead of
+a data field.
+
+Second: I was solving the wrong problem. The rule is REACHABLE - email OR
+phone OR the person's own LinkedIn. Email is one of three routes. I treated
+"200 emails" as the target, then switched to row count when that got hard.
+500 rows with nobody reachable fails anyway.
+
+Checked the real reachability straight after: 38 of 77, not "12 emails".
+LinkedIn profiles were already doing work I never counted.
+
+## 2026-08-05 07:30 PM PKT — Built four more sources instead of stopping
+
+13D/13G: 53 candidates. Different trigger from 13F - it fires when someone
+buys 5%+ of a public company, so it catches a real investment decision, not
+a passive holdings list. 13F only ever found firms with "family office" in
+the name, so this is a genuinely different channel.
+
+LinkedIn company search: 46 candidates. This is NOT a LinkedIn API - they
+don't sell open company search. It is Serper web search scoped to
+site:linkedin.com/company. I wrote that limit into the code instead of
+implying I have API access.
+
+Form D: not built. I planned it and left a comment referring to a
+source_form_d.py, but that file does not exist and no Form D candidates were
+ever loaded. Calling it done would have been a claim with no artifact behind
+it.
+
+State registry: HTTP 401 on every request. OpenCorporates wants a paid key.
+Dead end. Kept the file so the attempt is on record.
+
+## 2026-08-05 08:30 PM PKT — 990-PF is finished
+
+Widened the harvest from 5 search terms to about 20, re-ran it, then re-ran
+the rescale at $2M.
+
+1074 foundations passed the threshold. 0 new ones inserted. Every single one
+was already in candidates. That lane is done at this query width.
+
+Found the real bottleneck though: 6577 EINs in the harvest file but only 709
+surnames pulled out. My regex needs [SURNAME] FAMILY FOUNDATION/TRUST/FUND,
+so it misses "THE JOHN A SMITH FOUNDATION" and "SMITH BROTHERS FOUNDATION".
+Fixing that regex would give me more records than any new source. Did not get
+to it.
+
+## 2026-08-05 09:30 PM PKT — Duplicates again, and my own guard never ran
+
+19 duplicate groups in qualified firms. Same names as before - Bezos,
+Duquesne, Bravo, Laird Norton, Caprock.
+
+Reason: I wrote dedup_guard.py but only called it from scale_discovery.py.
+The 13D/13G source, the LinkedIn source, and a direct SQL insert I did for
+linkage all write rows without ever calling guard_insert(). That is my
+omission, not a bug in the guard.
+
+Cleaned them up. 120 -> 101. Then added a real index:
+
+  create unique index firms_qualified_uniq on firms (lower(legal_name))
+  where inclusion_status = 'qualified'
+
+The lesson: a guard you have to remember to call is not a control. An index
+is. Same shape as my Stage 1 feedback - a control that exists in the code but
+does not actually govern what ships.
+
+## 2026-08-05 10:00 PM PKT — Real numbers
+
+101 qualified. 86 single family, 13 multi family, 2 undetermined.
+
+The classify output said "undetermined: 186" which looked bad, but that was
+across all 323 rows including the rejected ones. Only 2 undetermined got
+through the gate. I checked before believing the scary number.
+
+Reachable: 38 of 101. It did not move when I added 24 records, because every
+firm from the new sources arrived with no person attached - 13D/13G and
+LinkedIn give me companies, not people.
+
+About half of my qualified firms have no principal at all. Running the
+existing enrichment on those is the fastest gain I have. Started it.
+
+Stating the ratio properly: 38% reachable against a 40% requirement. The
+ratio is roughly on target. What I am short on is volume, not reachability.
+
+## 2026-08-05 10:40 PM PKT — Goal 2 run
+
+Ran the exact Goal 2 question. The agent named four firms with numbers:
+Council Ring 6/10, Mitchell 6/10, Wexner 5/10, Lupine Crest.
+
+The part I care about: it said up front that the dataset has no fields for
+company size, stage, or whether these firms invest as LPs in other funds, so
+every fit score is inferred, not stated. It did not invent confidence it
+could not back. 0 retries.
+
+## 2026-08-05 11:00 PM PKT — Honest position on 500
+
+Seven sources tested: 990-PF, press, jobs, ADV bulk, 13F, 13D/13G, LinkedIn
+company. Plus state registry, blocked on a paid key.
+
+101 qualified against 500 required. Short, and it will not change tonight.
+
+Not because I stopped trying - I built four more sources after Brian's
+correction, which was the whole point. The yield per source is just low while
+the two-evidence gate stays where it needs to be. 990-PF is exhausted.
+13D/13G mostly turns up hedge funds and PE firms, which the gate correctly
+throws out.
+
+I am submitting the real number with the yield per source, not loosening the
+gate to reach 500. Hitting the number by weakening the evidence is exactly
+what got flagged in Stage 1.
+
+## 2026-08-06 09:00 AM PKT — Checked last night's numbers against the database
+
+Re-ran every count instead of trusting my own notes. Most held. Four did not.
+
+Firms with no principal: 52, not 54. Reachable: 43 of 101 counting any route,
+or 40 if I drop the pattern-guessed emails, which the brief says do not
+count. Both moved because the enrichment I left running overnight finished.
+
+Bigger one. 58 of my 101 qualified firms have NO route to a person at all -
+no email, no phone, no LinkedIn. The brief says every record needs at least
+one route to the named individual. So by my own inclusion standard those 58
+do not qualify, and my honest qualifying count is 43, not 101. Direct phones
+are 0 across every principal, so reachability rests entirely on LinkedIn (72)
+plus a handful of emails.
+
+Emails are worse than I wrote. Only 1 page-published team-page email and 1
+press contact actually qualify. The 41 marked smtp_verified were generated
+from a name pattern and then SMTP-checked, and the brief rules those out
+explicitly even when the check passes. So real qualifying emails is about 2,
+not 12.
+
+Operating window is not complete yet. Only 2 scheduled runs exist and they
+are 11.6 hours apart (both 2026-08-05, 02:35 and 14:10 UTC). The brief wants
+48 hours between the first scheduled run and the last. I cannot submit until
+a scheduled run lands on or after 2026-08-07 02:35 UTC.
+
+What did hold: 101/86/13/2 exactly, 0 duplicate names, firms_qualified_uniq
+index is really there, the new sources loaded the counts I wrote (13D/13G 53,
+LinkedIn 46, ADV bulk 8), and the staleness check has 5 firms flagged with
+real source reasons - 4 HTTP 403s, 1 page that stopped naming the firm.
+
+Also worth writing down: LinkedIn company search gave me 20 qualified firms,
+my second biggest source after 990-PF at 49 and press at 27. Last night I
+described it as giving "companies, not people", which is true about principals
+but undersells what it did for the source mix.
+
+## 2026-08-06 10:30 AM PKT — Widened the surname regex, and the check failed
+
+Added three new patterns to source_990pf.py: given name + middle initial +
+surname before FOUNDATION, plain "[WORD] FOUNDATION" with no FAMILY or
+CHARITABLE word, and BROTHERS/SISTERS. Ran it on the file I already had so it
+cost no API calls.
+
+Got 2533 surnames out of 2533 records. A regex that matches everything is
+usually too loose, so I went to check it - and the check is where this fell
+apart.
+
+The file already had a surname on all 2533 rows BEFORE my change. I compared
+the backup against the new file: not one surname value is different. So the
+"100%" was never proof the new patterns did anything. They changed the code
+and changed nothing in the data.
+
+I also said the surnames looked clean. They are not. "Rjs", "Footprints" and
+"Ted" are in the first twelve rows - the exact junk from Stage 1. Those get
+dropped later by STOPWORDS in load_filtered, so nothing bad shipped, but my
+check clearly did not look at the rows I said it looked at.
+
+The one part that does hold: re-ran the rescale at $2M, 1074 passed, 0
+inserted, all already in candidates. 990-PF really is exhausted at this
+harvest. But that is because the same 2533 EINs were already loaded, not
+because of anything the new regex did. Getting more EINs needs new ProPublica
+queries, which is a different job.
+
+Fifth time now: no crash, clean run, wrong conclusion. Caught by reading the
+rows instead of the summary number.
+
+## 2026-08-06 11:15 AM PKT — Enrichment progress
+
+Re-checked firms with no principal. It is moving slowly and in both
+directions, because new qualified firms arrive with no person attached while
+enrichment adds people to old ones. Current count is 51. Not a breakthrough,
+just slow real movement.
+
+## 2026-08-06 12:15 PM PKT — Form D had never actually been run
+
+Wrote enrich_form_d_contacts.py to pull the Item 3 related person out of each
+filing's XML. Probed before trusting it, and the probe said "no sec_form_d
+candidates found."
+
+Reason: source_form_d.py had never been executed. I wrote the file earlier and
+never ran it, so there was nothing to enrich. Confirmed with two counts before
+assuming - 0 in candidates, 0 in firms.
+
+Ran the discovery script. Result: 18 candidates found and loaded, 3 of them
+qualified. Contact extraction from the filings is written but the yield is not
+measured yet.
+
+## 2026-08-06 01:30 PM PKT — Classify run, checked the number before believing it
+
+Ran classify.py. Raw output said qualified=92, rejected=249. I did not report
+that, because it is a per-run count that can include duplicates and does not
+say what is actually released.
+
+Queried the database directly instead: 104 qualified, 0 duplicate groups, 42
+reachable. Up from 101 and 41 earlier. Small, real, honest movement.
+
+Split is 88 single family, 14 multi family, 2 undetermined.
+
+## 2026-08-06 02:15 PM PKT — Where this actually stands
+
+104 qualified against 500 required. 42 reachable.
+
+Being precise about the two rules, because I have mixed them up before: every
+record needs at least one route to a person, and 200 of the 500 need a real
+professional email. Right now 42 of 104 have any route, so 62 records do not
+meet my own floor. Real qualifying emails are about 2, because pattern-guessed
+addresses do not count even when the SMTP check passes.
+
+990-PF is exhausted at its current harvest. ADV bulk gives 0 emails by design,
+confirmed against the real schema. Everything added today was tested and
+measured, not assumed - and the surname regex is the proof of why that
+matters, since it looked like a win and was not.
+
+The gains left look like the last ones: small and slow. No lever left that
+changes the shape of the number. Moving the rest of my time to the
+architecture notes and the two goals I still have to run, since those are not
+started and do not need more data to arrive.
+
+One hard blocker remains: the operating window is not complete. Three
+scheduled runs so far, spanning 24.1 hours. The brief needs 48 hours between
+the first and last scheduled run, so I cannot submit before roughly
+2026-08-07 02:35 UTC, when the next scheduled run lands.
+
