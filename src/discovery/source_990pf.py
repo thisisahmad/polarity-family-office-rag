@@ -58,9 +58,15 @@ QUERIES = [
 ]
 
 # IRS names are usually UPPERCASE: "SMITH FAMILY FOUNDATION"
-SURNAME_PATTERNS = [
-    re.compile(r"^(?:THE\s+)?([A-Z][A-Za-z'\-]+)\s+FAMILY\s+(?:FOUNDATION|TRUST|FUND)", re.I),
-    re.compile(r"^(?:THE\s+)?([A-Z][A-Za-z'\-]+)\s+(?:CHARITABLE|FAMILY)\s+", re.I),
+PATTERNS = [
+    r"^(?:THE\s+)?([A-Z][A-Za-z'\-]+)\s+FAMILY\s+(?:FOUNDATION|TRUST|FUND)",
+    r"^(?:THE\s+)?([A-Z][A-Za-z'\-]+)\s+(?:CHARITABLE|FAMILY)\s+",
+    # new: given-name + middle initial + surname before FOUNDATION
+    r"^(?:THE\s+)?[A-Z]\.?\s*[A-Z][A-Za-z'\-]+\s+([A-Z][A-Za-z'\-]+)\s+FOUNDATION",
+    # new: no FAMILY/CHARITABLE word at all
+    r"^(?:THE\s+)?([A-Z][A-Za-z'\-]+)\s+FOUNDATION$",
+    # new: BROTHERS / SISTERS pattern
+    r"^(?:THE\s+)?([A-Z][A-Za-z'\-]+)\s+(?:BROTHERS|SISTERS)\s+FOUNDATION",
 ]
 
 STOPWORDS = {"THE", "AND", "OUR", "NEW", "FIRST", "COMMUNITY", "AMERICAN",
